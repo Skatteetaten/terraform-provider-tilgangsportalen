@@ -1,0 +1,52 @@
+package provider
+
+import (
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
+
+func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
+	testUser := os.Getenv("TF_VAR_TEST_USER")
+	roleName := "TestRole - list entra groups assigned to role"
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_system_role" "test_role_assignment_data_source" {
+					name              = "%s"
+					product_category  = "TBD"
+					system_role_owner = "%s"
+					approval_level    = "L2"
+					description       = "Terraform acceptance test role for assignment."
+					it_shop_name      = "Access shop shelf"
+				} 
+
+				resource "tilgangsportalen_entra_group" "test_role_assignment_data_source" {
+					name = "[Test] group to be assigned to role"
+					alias = "group_to_be_assigned_to_role_test"
+					description = "terraform provider acceptance test"
+					inheritance_level = "User"
+				}
+
+				resource "tilgangsportalen_entra_group_role_assignment" "test_role_assignment_data_source" {
+					role_name = tilgangsportalen_system_role.test_role_assignment_data_source.name
+					entra_group = tilgangsportalen_entra_group.test_role_assignment_data_source.name
+				}
+
+				data "tilgangsportalen_entra_groups_assigned_to_role" "groups_assigned_role" {
+					role_name = tilgangsportalen_system_role.test_role_assignment_data_source.name
+				}
+				`,roleName, testUser),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "role_name", roleName),
+				),
+			},
+		},
+	})
+}
