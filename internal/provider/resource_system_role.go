@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -24,6 +21,7 @@ import (
 var _ resource.Resource = &NewSystemRoleResource{}
 var _ resource.ResourceWithImportState = &NewSystemRoleResource{}
 
+// CreateNewSystemRole is a helper function
 func CreateNewSystemRole() resource.Resource {
 	return &NewSystemRoleResource{}
 }
@@ -35,7 +33,7 @@ type NewSystemRoleResource struct {
 
 // SystemRoleModel describes the resource data model.
 type SystemRoleModel struct {
-	Id                      types.String `tfsdk:"id"`
+	ID                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
 	SystemRoleOwner         types.String `tfsdk:"system_role_owner"`
 	SystemRoleSecurityOwner types.String `tfsdk:"system_role_security_owner"`
@@ -45,10 +43,12 @@ type SystemRoleModel struct {
 	ItShopName              types.String `tfsdk:"it_shop_name"`
 }
 
+// Metadata returns the resource type name.
 func (r *NewSystemRoleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_system_role"
 }
 
+// Schema defines the schema for the resource.
 func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -127,6 +127,7 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
+// Configure adds the provider configured client to the resource.
 func (r *NewSystemRoleResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -147,6 +148,7 @@ func (r *NewSystemRoleResource) Configure(ctx context.Context, req resource.Conf
 	r.client = client
 }
 
+// Create a new system role resource
 func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data SystemRoleModel
 
@@ -173,8 +175,8 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// Setting role ID to be equal the new role name
-	data.Id = data.Name
+	// Setting role ID to be equal the role name
+	data.ID = data.Name
 
 	tflog.Debug(ctx, fmt.Sprintf("System Role %s created", data.Name))
 
@@ -182,6 +184,7 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
+// Read calls the API to get the latest data for the resource
 func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data SystemRoleModel
 
@@ -214,14 +217,21 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 
 	// Map to SystemRoleModel and save updated data into Terraform state
 	data.Name = types.StringValue(systemRole.Name)
-	data.Description = types.StringValue(systemRole.Description)
 	data.ApprovalLevel = types.StringValue(systemRole.ApprovalLevel)
 	data.ProductCategory = types.StringValue(systemRole.ProductCategory)
+	// If no description is set, GetSystemRole returns an empty string
+	// We only want the plan to show change if description has actually changed
+	if(systemRole.Description=="" && data.Description !=types.StringValue("")){
+		data.Description = types.StringNull()
+	} else {
+		data.Description =types.StringValue(systemRole.Description)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 
 }
 
+// Update a system role resource
 func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var rolePlan SystemRoleModel
 	var roleState SystemRoleModel
@@ -256,12 +266,13 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 		}
 	}
 
-	// If one or more of the fields Description, Approval Level, System Role Owner, System Role Security Owner or Product Category
-	// differs, we call UpdateRole.
+	// If one or more of the fields Description, Approval Level, System Role
+	// Owner, System Role Security Owner or Product Category differs, we call
+	// UpdateRole.
 	if !rolePlan.Description.Equal(roleState.Description) || !rolePlan.SystemRoleOwner.Equal(roleState.SystemRoleOwner) || !rolePlan.SystemRoleSecurityOwner.Equal(roleState.SystemRoleSecurityOwner) ||
 		!rolePlan.ApprovalLevel.Equal(roleState.ApprovalLevel) || !rolePlan.ProductCategory.Equal(roleState.ProductCategory) {
 
-		group := tilgangsportalapi.SystemRoleChange{
+		role := tilgangsportalapi.SystemRoleChange{
 			RoleName:                namePlan.ValueString(), // identifier for the role, using plan in case the name was changed above
 			SystemRoleOwner:         rolePlan.SystemRoleOwner.ValueString(),
 			SystemRoleSecurityOwner: rolePlan.SystemRoleSecurityOwner.ValueString(),
@@ -270,7 +281,7 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 			ProductCategory:         rolePlan.ProductCategory.ValueString(),
 		}
 
-		_, err := r.client.UpdateSystemRole(group)
+		_, err := r.client.UpdateSystemRole(role)
 		if err != nil {
 
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update fields of System Role %s, got error: %s", namePlan, err))
@@ -283,6 +294,7 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &rolePlan)...)
 }
 
+// Delete a system role resource
 func (r *NewSystemRoleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data SystemRoleModel
 
@@ -312,6 +324,7 @@ func (r *NewSystemRoleResource) Delete(ctx context.Context, req resource.DeleteR
 	// Removal from state is handled automatically by the plugin
 }
 
+// ImportState imports a system role to state
 func (r *NewSystemRoleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	tflog.Debug(ctx, fmt.Sprintf("Importing System Role with name %s", req.ID))

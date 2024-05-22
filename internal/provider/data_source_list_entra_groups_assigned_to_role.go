@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -17,6 +14,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &EntraGroupsForRoleDataSource{}
 
+// NewEntraGroupsForRoleDataSource is a helper function
 func NewEntraGroupsForRoleDataSource() datasource.DataSource {
 	return &EntraGroupsForRoleDataSource{}
 }
@@ -26,16 +24,18 @@ type EntraGroupsForRoleDataSource struct {
 	client *tilgangsportalapi.Client
 }
 
-// EntraGroupsForRoleDataSource describes the data source data model.
+// EntraGroupsForRoleDataSourceModel describes the data source data model.
 type EntraGroupsForRoleDataSourceModel struct {
 	RoleName types.String            `tfsdk:"role_name"`
 	Groups   []SingleEntraGroupModel `tfsdk:"groups"`
 }
 
+// Metadata returns the resource type name.
 func (d *EntraGroupsForRoleDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_entra_groups_assigned_to_role"
 }
 
+// Schema defines the schema for the resource.
 func (d *EntraGroupsForRoleDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -62,6 +62,7 @@ func (d *EntraGroupsForRoleDataSource) Schema(ctx context.Context, req datasourc
 	}
 }
 
+// Configure adds the provider configured client to the resource.
 func (d *EntraGroupsForRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -75,13 +76,13 @@ func (d *EntraGroupsForRoleDataSource) Configure(ctx context.Context, req dataso
 			"Unexpected Data Source Configure Type",
 			fmt.Sprintf("Expected *tilgangsportalapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
-
 		return
 	}
 
 	d.client = client
 }
 
+// Read calls the API to get the latest data for the resource
 func (d *EntraGroupsForRoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data EntraGroupsForRoleDataSourceModel
 

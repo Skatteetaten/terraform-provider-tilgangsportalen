@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// For a role with name roleName and a group with display name goupName, check if a role assignment
-// exists between them.
+// CheckIfGroupIsAssignedToRole - For a role with name roleName and a group with
+// display name goupName, check if a role assignment exists between them.
 func (client *Client) CheckIfGroupIsAssignedToRole(groupName string, roleName string) (bool, error) {
 	tempEntraGroups, err := client.ListEntraGroupsForRole(roleName)
 	if err != nil {
@@ -24,9 +24,10 @@ func (client *Client) CheckIfGroupIsAssignedToRole(groupName string, roleName st
 	return false, nil
 }
 
-// The function WaitForGroupRoleAssignmentStatus is used to verify that a role assignment has been either created 
-// (assignmentStatus=true) or removed (assignmentStatus=false). It uses ListEntraGroupsForRole in a while loop, when the
-// assignment is either created or removed, the loop exits.
+// WaitForGroupRoleAssignmentStatus is used to verify that a role
+// assignment has been either created (assignmentStatus=true) or removed
+// (assignmentStatus=false). It uses ListEntraGroupsForRole in a while loop,
+// when the assignment is either created or removed, the loop exits.
 func (client *Client) WaitForGroupRoleAssignmentStatus(groupName string, roleName string, assignmentStatus bool) error {
 	var action string
 

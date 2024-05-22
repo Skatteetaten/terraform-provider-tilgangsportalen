@@ -1,35 +1,31 @@
 package tilgangsportalapi
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 )
 
-// Updates the name of a role identified by its current name
+// RenameSystemRole updates the name of a role identified by its current name
 // See https://wiki.sits.no/display/IDABAS/6.+Rename+Role
-func (client *Client) RenameSystemRole(group RenameSystemRole) (*http.Response, error) {
+func (client *Client) RenameSystemRole(role RenameSystemRole) (*http.Response, error) {
 
-	var group_body map[string]interface{}
-	temp_body, err := json.Marshal(group)
+	var roleBody, err = CreateRequestBody(role)
 	if err != nil {
 		return nil, err
 	}
 
-	json.Unmarshal(temp_body, &group_body)
-
-	log.Printf("Renaming System Role from %s to %s...", group.OldName, group.NewName)
+	log.Printf("Renaming System Role from %s to %s...", role.OldName, role.NewName)
 
 	// Construct the URL
-	Rename_group_url := "/SKAT_RoleGovernance/RenameRole"
+	renameRoleURL := "/SKAT_RoleGovernance/RenameRole"
 
 	// Perform the POST request
-	response, err := client.PostRequest(Rename_group_url, nil, group_body)
+	response, err := client.PostRequest(renameRoleURL, roleBody)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("Renaming System Role from %s to %s was successful", group.OldName, group.NewName)
+	log.Printf("Renaming System Role from %s to %s was successful", role.OldName, role.NewName)
 
 	return response, nil
 }

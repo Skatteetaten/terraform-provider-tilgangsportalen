@@ -4,8 +4,8 @@ import (
 	"log"
 )
 
-// Checks if an Entra group with display name groupName exists, and is owned
-// by authenticated system user.
+// CheckIfGroupExists checks if an Entra group with display name groupName
+// exists, and is owned by authenticated system user.
 func (client *Client) CheckIfGroupExists(groupName string) (bool, error) {
 	tempEntraGroups, err := client.ListEntraGroups()
 	if err != nil {

@@ -6,9 +6,10 @@ import (
 	"net/url"
 )
 
-// Get information about a specific named role / check if role exists
-// Gets the name, description, approval level, system role owner, system role security owner,
-// product category and IsForITShop for a specific (named) system role.
+// GetSystemRole gets information about a specific named role / check if role
+// exists. Gets the name, description, approval level, system role owner, 
+// system role security owner, product category and IsForITShop for a specific
+// (named) system role.
 // See https://wiki.sits.no/display/IDABAS/19.+Get+Role
 func (client *Client) GetSystemRole(roleName string) (*SystemRole, error) {
 	var data SystemRole

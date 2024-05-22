@@ -1,3 +1,6 @@
+// Package tilgangsportalapi can be used to read, create, modify and delete 
+// resources in Tilgangsportalen. The resources available are Entra group,
+// system role, role assignments, and lists of these.
 package tilgangsportalapi
 
 import (
@@ -7,12 +10,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
-// Client
+// Client struct
 type Client struct {
 	baseURL     string
 	HTTPClient  *http.Client
@@ -52,89 +53,48 @@ func NewClient(baseURL, apiUsername, apiPassword string) (*Client, error) {
 
 // GetRequest performs an HTTP get request
 func (c *Client) GetRequest(urlStr string) ([]byte, error) {
+	urlRequestStr := c.baseURL + urlStr
+	_, bodyBytes, err := BuildRequest("GET", urlRequestStr,nil, c.headers, c.cookies)
 
-	urlReqeustStr := c.baseURL + urlStr
-
-	// Create a new HTTP request
-	req, err := http.NewRequest("GET", urlReqeustStr, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set headers
-	for key, value := range c.headers {
-		req.Header.Set(key, value)
-	}
-
-	// Add cookies to the request
-	for _, cookie := range c.cookies {
-		req.AddCookie(cookie)
-	}
-
-	// Create an HTTP client and send the request
-	client := &http.Client{
-		Timeout: time.Second * 180,
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check for HTTP error response
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
-	}
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println("Error reading response body:", err)
-	}
-
-	// Important to close the response body
-	defer resp.Body.Close()
-
-	return bodyBytes, nil
-
+	return bodyBytes, err
 }
 
 // PostRequest performs an HTTP POST request
-func (c *Client) PostRequest(urlStr string, data map[string]interface{}, jsonData map[string]interface{}) (*http.Response, error) {
+func (c *Client) PostRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
+	urlRequestStr := c.baseURL + urlStr
+	response, _, err := BuildRequest("POST", urlRequestStr,requestBody, c.headers, c.cookies)
 
-	var requestBody io.Reader
+	return response,err
+}
 
-	urlReqeustStr := c.baseURL + urlStr
+// PutRequest performs an HTTP Put request
+func (c *Client) PutRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
+	urlRequestStr := c.baseURL + urlStr
+	response, _, err := BuildRequest("PUT", urlRequestStr,requestBody, c.headers, c.cookies)
 
-	// If jsonData is provided, encode it as JSON
-	log.Println("Encoding data for POST request and creating request body")
-	if jsonData != nil {
-		jsonBytes, err := json.Marshal(jsonData)
-		if err != nil {
-			return nil, err
-		}
-		requestBody = bytes.NewBuffer(jsonBytes)
-	} else if data != nil {
-		// If data is provided, encode it as form values
-		formValues := url.Values{}
-		for key, value := range data {
-			formValues.Add(key, fmt.Sprintf("%v", value))
-		}
-		requestBody = strings.NewReader(formValues.Encode())
-	}
+	return response,err
+}
 
-	// Create a new HTTP request
-	req, err := http.NewRequest("POST", urlReqeustStr, requestBody)
+
+// BuildRequest builds and performs a new HTTP request to urlRequestStr of type
+// requestType with requestBody (use nil for GET). Returns the received
+// response and the body
+func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie)(*http.Response, []byte, error){
+
+	log.Printf("Encoding data for %s request and creating request body", requestType)
+	
+	req, err := http.NewRequest(requestType, urlRequestStr, requestBody)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Set headers
-	for key, value := range c.headers {
+	for key, value := range headers {
 		req.Header.Set(key, value)
 	}
 
 	// Add cookies to the request
-	for _, cookie := range c.cookies {
+	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
 
@@ -143,94 +103,57 @@ func (c *Client) PostRequest(urlStr string, data map[string]interface{}, jsonDat
 		Timeout: time.Second * 180,
 	}
 
+	log.Printf("Performing %s request to %s", requestType, urlRequestStr)
+	
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	bodyBytes, err := io.ReadAll(resp.Body)
 	// Check for HTTP error response and getting message from response body
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		var responseBody []map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &responseBody)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		message, ok := responseBody[0]["Message"].(string)
 		if ok {
-			return nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d, message: %s", resp.Status, resp.StatusCode, message)
+			return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d, message: %s", resp.Status, resp.StatusCode, message)
 		}
-		return nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
+		return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
 	}
 
-	// Important to close the response body
+	// Closing the response body
 	defer resp.Body.Close()
 
-	return resp, nil
+	return resp, bodyBytes, nil
+
 }
 
-// PutRequest performs an HTTP Put request
-func (c *Client) PutRequest(urlStr string, data map[string]interface{}, jsonData map[string]interface{}) (*http.Response, error) {
 
-	var requestBody io.Reader
-
-	urlReqeustStr := c.baseURL + urlStr
-
-	// If jsonData is provided, encode it as JSON
-	log.Println("Encoding data for PUT request and creating request body")
-	if jsonData != nil {
-		jsonBytes, err := json.Marshal(jsonData)
-		if err != nil {
-			return nil, err
-		}
-		requestBody = bytes.NewBuffer(jsonBytes)
-	} else if data != nil {
-		// If data is provided, encode it as form values
-		formValues := url.Values{}
-		for key, value := range data {
-			formValues.Add(key, fmt.Sprintf("%v", value))
-		}
-		requestBody = strings.NewReader(formValues.Encode())
-	}
-
-	// Create a new HTTP request
-	req, err := http.NewRequest("PUT", urlReqeustStr, requestBody)
+// CreateRequestBody creates a body of type io.Reader that can be used i an 
+// API call
+func CreateRequestBody(bodyObject interface{}) (io.Reader, error){
+	var body map[string]interface{}
+	tempBody, err := json.Marshal(bodyObject)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set headers
-	for key, value := range c.headers {
-		req.Header.Set(key, value)
-	}
-
-	// Add cookies to the request
-	for _, cookie := range c.cookies {
-		req.AddCookie(cookie)
-	}
-
-	// Create an HTTP client and send the request
-	client := &http.Client{
-		Timeout: time.Second * 180,
-	}
-
-	resp, err := client.Do(req)
-
+	err = json.Unmarshal(tempBody, &body)
 	if err != nil {
 		return nil, err
 	}
-
-	// Check for HTTP error response
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
+	
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
 	}
-
-	// Important to close the response body
-	defer resp.Body.Close()
-
-	return resp, nil
+	return bytes.NewBuffer(jsonBytes), nil
 }

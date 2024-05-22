@@ -10,7 +10,7 @@ import (
 
 func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 	testUser := os.Getenv("TF_VAR_TEST_USER")
-	roleName := "TestRole - list entra groups assigned to role"
+	roleName := "TestRole - list Entra groups assigned to role"
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -42,7 +42,7 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 				data "tilgangsportalen_entra_groups_assigned_to_role" "groups_assigned_role" {
 					role_name = tilgangsportalen_system_role.test_role_assignment_data_source.name
 				}
-				`,roleName, testUser),
+				`, roleName, testUser),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "role_name", roleName),
 				),

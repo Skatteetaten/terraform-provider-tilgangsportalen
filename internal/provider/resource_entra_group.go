@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -24,14 +21,17 @@ import (
 var _ resource.Resource = &NewEntraGroupResource{}
 var _ resource.ResourceWithImportState = &NewEntraGroupResource{}
 
+// CreateNewEntraGroup is a helper function
 func CreateNewEntraGroup() resource.Resource {
 	return &NewEntraGroupResource{}
 }
 
+// NewEntraGroupResource defines the resource implementation
 type NewEntraGroupResource struct {
 	client *tilgangsportalapi.Client
 }
 
+// EntraGroupModel is a mapping of the resource schema
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
 	DisplayName      types.String `tfsdk:"name"`
@@ -40,10 +40,12 @@ type EntraGroupModel struct {
 	InheritanceLevel types.String `tfsdk:"inheritance_level"`
 }
 
+// Metadata returns the resource type name.
 func (r *NewEntraGroupResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_entra_group"
 }
 
+// Schema defines the schema for the resource.
 func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -112,6 +114,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 	}
 }
 
+// Configure adds the provider configured client to the resource.
 func (r *NewEntraGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -130,6 +133,7 @@ func (r *NewEntraGroupResource) Configure(ctx context.Context, req resource.Conf
 	r.client = client
 }
 
+// Create is used to create an Entra group resource
 func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data EntraGroupModel
 
@@ -162,6 +166,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
+// Read calls the API to get the latest data for the resource
 func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data EntraGroupModel
 
@@ -187,8 +192,9 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// Performs changes on Entra ID group names
-// If there are changes to other fields than the group name the group will be deleted and re-created with the new name.
+// Update performs changes on Entra ID group names
+// If there are changes to other fields than the group name the group will be
+// deleted and re-created with the new name.
 // This is due to a limitation in the underlying API which is missing a method to update the other fields.
 func (r *NewEntraGroupResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data EntraGroupModel
@@ -223,6 +229,7 @@ func (r *NewEntraGroupResource) Update(ctx context.Context, req resource.UpdateR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
+// Delete an Entra group resource 
 func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data EntraGroupModel
 
@@ -245,6 +252,7 @@ func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 }
 
+// ImportState imports an Entra group to state
 func (r *NewEntraGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
 	tflog.Debug(ctx,fmt.Sprintf("Importing Entra Group with ID %s", req.ID))

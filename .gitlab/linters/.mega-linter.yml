@@ -12,8 +12,16 @@ DISABLE_ERRORS_LINTERS:
 
 TERRAFORM_TERRASCAN_ARGUMENTS: 'scan --skip-rules="AC_AZURE_0389" --non-recursive'
 TERRAFORM_TERRASCAN_PRE_COMMANDS:
-  - command: echo -e "credentials \"gitlab.skead.no\" { token = \"$CI_JOB_TOKEN\"}" > /root/.terraformrc
+  - command:
+      echo -e "credentials \"gitlab.skead.no\" { token = \"$CI_JOB_TOKEN\"}" >
+      /root/.terraformrc
     cwd: workspace
+
+COPYPASTE_JSCPD_CONFIG_FILE: .jscpd.json
+COPYPASTE_JSCPD_DISABLE_ERRORS_IF_LESS_THAN: 7 # Workaround as I can't get the threshold parameter to work in the jscpd config file
+
+GO_GOLANGCI_LINT_CLI_LINT_MODE: project # To allow for multiple (two) modules linted at once
+GO_REVIVE_CONFIG_FILE: .revive.toml
 
 YAML_V8R_FILTER_REGEX_EXCLUDE: '(\.gitlab-ci.yml|\.gitlab/linters|docs)'
 YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(\.gitlab-ci.yml|\.gitlab/linters|docs)'

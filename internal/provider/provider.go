@@ -1,6 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
+// Package provider implements the Tilgangportalen provider
 package provider
 
 import (
@@ -65,7 +63,7 @@ func (p *TilgangsportalenProvider) Schema(ctx context.Context, req provider.Sche
 	}
 }
 
-// Setting up the tilgangsportalen provider client 
+// Configure sets up the Tilgangsportalen provider client 
 func (p *TilgangsportalenProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	
 	// Check environment variables
@@ -127,7 +125,7 @@ func (p *TilgangsportalenProvider) DataSources(ctx context.Context) []func() dat
 	}
 }
 
-// Helper function
+// New is a helper function
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &TilgangsportalenProvider{

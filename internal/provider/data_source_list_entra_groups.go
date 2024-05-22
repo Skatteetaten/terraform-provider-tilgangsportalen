@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -17,6 +14,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &EntraGroupsDataSource{}
 
+// NewEntraGroupsDataSource is a helper function
 func NewEntraGroupsDataSource() datasource.DataSource {
 	return &EntraGroupsDataSource{}
 }
@@ -26,19 +24,23 @@ type EntraGroupsDataSource struct {
 	client *tilgangsportalapi.Client
 }
 
-// EntraGroupsDataSource describes the data source data model.
+// EntraGroupsDataSourceModel describes the data source data model.
 type EntraGroupsDataSourceModel struct {
 	Groups []SingleEntraGroupModel `tfsdk:"groups"`
 }
 
+// SingleEntraGroupModel is used when reading the API response when listing
+// Entra groups
 type SingleEntraGroupModel struct {
 	GroupName types.String `tfsdk:"displayname"`
 }
 
+// Metadata returns the resource type name.
 func (d *EntraGroupsDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_entra_groups"
 }
 
+// Schema for the Entra group datasource 
 func (d *EntraGroupsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -61,6 +63,7 @@ func (d *EntraGroupsDataSource) Schema(ctx context.Context, req datasource.Schem
 	}
 }
 
+// Configure adds the provider configured client to the resource.
 func (d *EntraGroupsDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -81,6 +84,7 @@ func (d *EntraGroupsDataSource) Configure(ctx context.Context, req datasource.Co
 	d.client = client
 }
 
+// Read calls the API to get the latest data for the resource
 func (d *EntraGroupsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data EntraGroupsDataSourceModel
 

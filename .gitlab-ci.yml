@@ -1,6 +1,7 @@
+---
 include:
   - project: "azure-tools/ci-templates/tools"
-    ref: "1.3.2"
+    ref: "2.2.6"
     file:
       - "Linter.gitlab-ci.yml"
 
@@ -9,9 +10,12 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "release"
 
 .feature-branch:
   rules:
+    - if: $CI_COMMIT_REF_NAME == "release"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: on_success
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
@@ -35,7 +39,6 @@ go package code examination:
   stage: .pre
   script:
     - go vet ./...
-  allow_failure: true # Remove after fixing
   rules:
     - !reference [.feature-branch, rules]
   tags:
@@ -47,7 +50,6 @@ go security scanning:
   script:
     - go install github.com/securego/gosec/v2/cmd/gosec@latest
     - gosec ./...
-  allow_failure: true # Remove after fixing
   rules:
     - !reference [.feature-branch, rules]
   tags:
@@ -58,6 +60,10 @@ unit tests:
   stage: test
   script:
     - echo "Prepare Go unit tests for provider"
+  environment:
+    name: dev
+    action: verify
+    deployment_tier: development
   rules:
     - !reference [.feature-branch, rules]
   tags:
@@ -70,7 +76,32 @@ acceptance tests:
   stage: test
   script:
     - echo "Prepare Go acceptance tests for provider"
+    - TF_ACC=1 go test -v ./...
+  environment:
+    name: test
+    action: verify
+    deployment_tier: testing
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
     - when: never
+  tags:
+    - intern
+
+# Release branch
+
+github release:
+  image: ${IMAGE_GO}
+  stage: test
+  script:
+    - echo "Sync with GitHub"
+  environment:
+    name: prod
+    action: verify
+    deployment_tier: production
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "release"
+      when: on_success
+    - when: never
+  tags:
+    - intern

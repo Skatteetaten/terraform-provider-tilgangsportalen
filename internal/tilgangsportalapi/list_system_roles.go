@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-// Lists the display names of all roles created by the authenticated user
+// ListSystemRoles lists the display names of all roles created by the authenticated user
 // See https://wiki.sits.no/display/IDABAS/13.+ListRoles
 func (client *Client) ListSystemRoles() (*Roles, error) {
 	var data Roles
