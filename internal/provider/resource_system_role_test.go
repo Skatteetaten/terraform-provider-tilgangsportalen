@@ -10,8 +10,8 @@ import (
 
 func TestCreateNewSystemRole(t *testing.T) {
 	testUser := os.Getenv("TF_VAR_TEST_USER")
-	name := "system role acceptance test"
-	newName := "system role acceptance test new name"
+	name := "Create new system role acceptance test"
+	newName := "Create new system role acceptance test new name"
 	productCategory := "TBD"
 	approvalLevel := "L2"
 	description := "Terraform acceptance test role."

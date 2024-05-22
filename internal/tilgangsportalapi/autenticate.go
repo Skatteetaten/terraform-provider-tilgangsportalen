@@ -1,6 +1,8 @@
 package tilgangsportalapi
 
 import (
+	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 )
@@ -15,12 +17,17 @@ func (c *Client) Authenticate() ([]*http.Cookie, error) {
 		"Password": c.apiPassword,
 		"User":     c.apiUsername,
 	}
+	jsonBytes, err := json.Marshal(authBody)
+	if err != nil {
+		return nil, err
+	}
+	jsonBody := bytes.NewBuffer(jsonBytes)
 
 	// Construct the URL
 	authURL := "/imx/login/SKAT_RoleGovernance"
 
 	// Perform the POST request
-	response, err := c.PostRequest(authURL, nil, authBody)
+	response, err := c.PostRequest(authURL, jsonBody)
 	if err != nil {
 		log.Println("Received error when attempting to authenticate to the server.")
 		return nil, err

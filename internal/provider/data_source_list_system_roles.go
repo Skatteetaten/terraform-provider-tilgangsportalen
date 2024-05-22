@@ -1,6 +1,3 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
 package provider
 
 import (
@@ -16,6 +13,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &SystemRolesDataSource{}
 
+// NewSystemRolesDataSource is a helper function
 func NewSystemRolesDataSource() datasource.DataSource {
 	return &SystemRolesDataSource{}
 }
@@ -25,20 +23,23 @@ type SystemRolesDataSource struct {
 	client *tilgangsportalapi.Client
 }
 
-// SystemRolesDataSource describes the data source data model.
+// SystemRolesDataSourceModel describes the data source data model.
 type SystemRolesDataSourceModel struct {
 	Roles []SingleSystemRoleModel `tfsdk:"roles"`
 }
 
+// SingleSystemRoleModel as List method only returns display name
 // Can be later replaced by the model found in the System Role resource file
 type SingleSystemRoleModel struct {
 	RoleName types.String `tfsdk:"displayname"`
 }
 
+// Metadata returns the resource type name.
 func (d *SystemRolesDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_system_roles"
 }
 
+// Schema defines the schema for the resource.
 func (d *SystemRolesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
@@ -61,6 +62,7 @@ func (d *SystemRolesDataSource) Schema(ctx context.Context, req datasource.Schem
 	}
 }
 
+// Configure adds the provider configured client to the resource.
 func (d *SystemRolesDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -81,6 +83,7 @@ func (d *SystemRolesDataSource) Configure(ctx context.Context, req datasource.Co
 	d.client = client
 }
 
+// Read calls the API to get the latest data for the resource
 func (d *SystemRolesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data SystemRolesDataSourceModel
 

@@ -8,8 +8,9 @@ import (
 	"net/http"
 )
 
-// CreateAndPublishSystemRole creates a system role and publishes it to an IT shop. If the publish method fails, 
-// the role is deleted again and an error is thrown
+// CreateAndPublishSystemRole creates a system role and publishes it to an
+// IT shop. If the publish method fails, the role is deleted again and an error
+// is thrown
 func (client *Client) CreateAndPublishSystemRole(role SystemRole) (*http.Response, error) {
 	// Create the system role
 	response, err := client.CreateSystemRole(SystemRole{ // Creating a new system role instance as we don't need all the fields
