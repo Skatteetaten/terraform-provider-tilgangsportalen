@@ -1,0 +1,33 @@
+---
+DISABLE_LINTERS:
+  - SPELL_MISSPELL
+  - SPELL_CSPELL
+  - SPELL_PROSELINT
+  - TERRAFORM_KICS
+  - MARKDOWN_MARKDOWN_LINK_CHECK
+  - SPELL_LYCHEE
+
+DISABLE_ERRORS_LINTERS:
+  - TERRAFORM_TERRASCAN
+
+TERRAFORM_TERRASCAN_ARGUMENTS: 'scan --skip-rules="AC_AZURE_0389" --non-recursive'
+TERRAFORM_TERRASCAN_PRE_COMMANDS:
+  - command: echo -e "credentials \"gitlab.skead.no\" { token = \"$CI_JOB_TOKEN\"}" > /root/.terraformrc
+    cwd: workspace
+
+YAML_V8R_FILTER_REGEX_EXCLUDE: '(\.gitlab-ci.yml|\.gitlab/linters|docs)'
+YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(\.gitlab-ci.yml|\.gitlab/linters|docs)'
+
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdown-lint.yml
+MARKDOWN_MARKDOWNLINT_DISABLE_ERRORS: false
+TERRAFORM_TERRAFORM_FMT_DISABLE_ERRORS: false
+
+## Errors are set to disabled for the following linters:
+## Enable this by setting the value to false.
+
+REPOSITORY_CHECKOV_DISABLE_ERRORS: true
+TERRAFORM_CHECKOV_DISABLE_ERRORS: true
+TERRAFORM_KICS_DISABLE_ERRORS: true
+
+IGNORE_GITIGNORED_FILES: true
+IGNORE_GENERATED_FILES: true
