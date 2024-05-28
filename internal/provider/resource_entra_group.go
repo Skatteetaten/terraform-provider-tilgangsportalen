@@ -57,13 +57,13 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName",
 				// Plan modifier to import id from previous state to avoid "know after apply" message
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(), 
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "The display name of the Entra Group. Must be unique. Please follow the standardized naming conventions for Entra ID groups.",
-				Validators: []validator.String{ 
+				Validators: []validator.String{
 					stringvalidator.RegexMatches(
 						regexp.MustCompile(`^[\[][æøåÆØÅa-zA-Z0-9 \-\[\]]+$`),
 						"The name of the Entra group must start with a prefix enclosed in square brackets, and may only contain alphanumeric characters, space ( ), square brackets ([]), and dash (-).The maxiumum length is 64 characters.",
@@ -74,7 +74,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"alias": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "The alias of the Entra Group. Must be unique.",
-				Validators: []validator.String{ 
+				Validators: []validator.String{
 					stringvalidator.RegexMatches(
 						regexp.MustCompile(`^[^@()\\\[\]";:<>, ]+$`), // same limitations as mailNickname, see microsoft documentation
 						"The alias is mandatory and it may not contain the characters @ , () \\ [] \" ; : <> SPACE. The max length is 64 characters.",
@@ -89,7 +89,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"description": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "A description of the Entra Group",
-				Validators: []validator.String{ 
+				Validators: []validator.String{
 					stringvalidator.RegexMatches(
 						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,?!_()/\-\[\]]*$`),
 						"The description may only contain alphanumeric characters, punctuation (.,?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
@@ -160,7 +160,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	// Setting role ID to be equal the new role name
 	data.Id = data.DisplayName
 
-	tflog.Debug(ctx, fmt.Sprintf("Entra Group %s created",entraGroup.DisplayName))
+	tflog.Debug(ctx, fmt.Sprintf("Entra Group %s created", entraGroup.DisplayName))
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -229,7 +229,7 @@ func (r *NewEntraGroupResource) Update(ctx context.Context, req resource.UpdateR
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// Delete an Entra group resource 
+// Delete an Entra group resource
 func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data EntraGroupModel
 
@@ -255,7 +255,7 @@ func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteR
 // ImportState imports an Entra group to state
 func (r *NewEntraGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 
-	tflog.Debug(ctx,fmt.Sprintf("Importing Entra Group with ID %s", req.ID))
+	tflog.Debug(ctx, fmt.Sprintf("Importing Entra Group with ID %s", req.ID))
 
 	data := EntraGroupModel{
 		Id:          types.StringValue(req.ID),

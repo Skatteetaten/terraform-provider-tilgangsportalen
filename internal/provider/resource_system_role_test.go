@@ -5,19 +5,26 @@ import (
 	"os"
 	"testing"
 
+	"time"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestCreateNewSystemRole(t *testing.T) {
+	t.Parallel()
+
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	name := fmt.Sprintf("TestCreateNewSystemRole Role %d", time)
+	newName := name + " new name"
 	testUser := os.Getenv("TF_VAR_TEST_USER")
-	name := "Create new system role acceptance test"
-	newName := "Create new system role acceptance test new name"
 	productCategory := "TBD"
 	approvalLevel := "L2"
 	description := "Terraform acceptance test role."
 	newDescription := "Terraform acceptance test role new description."
 	itShopName := "Access shop shelf"
-	
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 
@@ -32,7 +39,9 @@ func TestCreateNewSystemRole(t *testing.T) {
 					description       = "%s"
 					it_shop_name      = "%s"
 				} 
-				`,name,productCategory,testUser,approvalLevel,description,itShopName),
+
+				data "tilgangsportalen_system_roles" "all_roles" {}
+				`, name, productCategory, testUser, approvalLevel, description, itShopName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", name),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
@@ -59,7 +68,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					description       = "%s"
 					it_shop_name      = "%s"
 				} 
-				`,newName,productCategory,testUser,approvalLevel,description,itShopName),
+				`, newName, productCategory, testUser, approvalLevel, description, itShopName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
@@ -80,7 +89,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					description       = "%s"
 					it_shop_name      = "%s"
 				} 
-				`,newName,productCategory,testUser,approvalLevel,newDescription,itShopName),
+				`, newName, productCategory, testUser, approvalLevel, newDescription, itShopName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),

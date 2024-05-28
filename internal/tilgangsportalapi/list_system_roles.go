@@ -25,7 +25,7 @@ func (client *Client) ListSystemRoles() (*Roles, error) {
 		return nil, err
 	}
 
-	log.Printf("Listing roles successful. Found %d role(s).",len(data.Roles))
+	log.Printf("Listing roles successful. Found %d role(s).", len(data.Roles))
 
 	return &data, nil
 }

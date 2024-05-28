@@ -3,11 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -93,7 +93,7 @@ func (d *SystemRolesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	
+
 	// Getting owned system roles
 	response, err := d.client.ListSystemRoles()
 	if err != nil {
@@ -107,7 +107,7 @@ func (d *SystemRolesDataSource) Read(ctx context.Context, req datasource.ReadReq
 		}
 		data.Roles = append(data.Roles, roleState)
 	}
-	
+
 	tflog.Trace(ctx, "Found list of owned system roles.")
 
 	// Save data into Terraform state

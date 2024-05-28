@@ -18,13 +18,14 @@ type EntraGroups struct {
 }
 
 // DeleteEntraGroup represents the API body for deleting an Entra group
-// The group is identified by it's name (id) and the force parameter is 
+// The group is identified by its name (id) and the force parameter is
 // set to "1" to force deletion even if the group is assigned to a role
 type DeleteEntraGroup struct {
 	Name  string `json:"Name"`
 	Force string `json:"Force"`
-	// consider implementing force flag for removing any group assignments before deletion
-	// if delete fails due to group still being assigned to a role
+	// consider implementing force flag for removing any group assignments
+	// before deletion if delete fails due to group still being assigned to
+	// a role
 }
 
 // RenameEntraGroup represents the API body for renaming an Entra group
@@ -62,18 +63,18 @@ type PublishSystemRole struct {
 	ITShop string `json:"ITShop"`
 }
 
-// SystemRoleChange represents the API body for modifying the fields of 
+// SystemRoleChange represents the API body for modifying the fields of
 // a role
 type SystemRoleChange struct {
-	RoleName                string `json:"RoleName"`
-	SystemRoleOwner         string `json:"SystemRoleOwner"`
-	SystemRoleSecurityOwner string `json:"SystemRoleSecurityOwner"`
-	NewApprovalLevel        string `json:"NewApprovalLevel"`
-	NewDescription          string `json:"NewDescription"`
-	ProductCategory         string `json:"ProductCategory"`
+	RoleName         string `json:"RoleName"`
+	L2Ident          string `json:"L2Ident"`
+	L3Ident          string `json:"L3Ident"`
+	NewApprovalLevel string `json:"NewApprovalLevel"`
+	NewDescription   string `json:"NewDescription"`
+	ProductCategory  string `json:"ProductCategory"`
 }
 
-// RenameSystemRole represents the API body for modifying the name of 
+// RenameSystemRole represents the API body for modifying the name of
 // a role
 type RenameSystemRole struct {
 	OldName string `json:"OldName"`

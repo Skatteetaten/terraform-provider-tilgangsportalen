@@ -1,4 +1,4 @@
-// Package tilgangsportalapi can be used to read, create, modify and delete 
+// Package tilgangsportalapi can be used to read, create, modify and delete
 // resources in Tilgangsportalen. The resources available are Entra group,
 // system role, role assignments, and lists of these.
 package tilgangsportalapi
@@ -54,7 +54,7 @@ func NewClient(baseURL, apiUsername, apiPassword string) (*Client, error) {
 // GetRequest performs an HTTP get request
 func (c *Client) GetRequest(urlStr string) ([]byte, error) {
 	urlRequestStr := c.baseURL + urlStr
-	_, bodyBytes, err := BuildRequest("GET", urlRequestStr,nil, c.headers, c.cookies)
+	_, bodyBytes, err := BuildRequest("GET", urlRequestStr, nil, c.headers, c.cookies)
 
 	return bodyBytes, err
 }
@@ -62,27 +62,26 @@ func (c *Client) GetRequest(urlStr string) ([]byte, error) {
 // PostRequest performs an HTTP POST request
 func (c *Client) PostRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
 	urlRequestStr := c.baseURL + urlStr
-	response, _, err := BuildRequest("POST", urlRequestStr,requestBody, c.headers, c.cookies)
+	response, _, err := BuildRequest("POST", urlRequestStr, requestBody, c.headers, c.cookies)
 
-	return response,err
+	return response, err
 }
 
 // PutRequest performs an HTTP Put request
 func (c *Client) PutRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
 	urlRequestStr := c.baseURL + urlStr
-	response, _, err := BuildRequest("PUT", urlRequestStr,requestBody, c.headers, c.cookies)
+	response, _, err := BuildRequest("PUT", urlRequestStr, requestBody, c.headers, c.cookies)
 
-	return response,err
+	return response, err
 }
-
 
 // BuildRequest builds and performs a new HTTP request to urlRequestStr of type
 // requestType with requestBody (use nil for GET). Returns the received
 // response and the body
-func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie)(*http.Response, []byte, error){
+func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie) (*http.Response, []byte, error) {
 
 	log.Printf("Encoding data for %s request and creating request body", requestType)
-	
+
 	req, err := http.NewRequest(requestType, urlRequestStr, requestBody)
 	if err != nil {
 		return nil, nil, err
@@ -100,11 +99,11 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 
 	// Create an HTTP client and send the request
 	client := &http.Client{
-		Timeout: time.Second * 180,
+		Timeout: time.Second * 300,
 	}
 
 	log.Printf("Performing %s request to %s", requestType, urlRequestStr)
-	
+
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -136,10 +135,9 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 
 }
 
-
-// CreateRequestBody creates a body of type io.Reader that can be used i an 
+// CreateRequestBody creates a body of type io.Reader that can be used i an
 // API call
-func CreateRequestBody(bodyObject interface{}) (io.Reader, error){
+func CreateRequestBody(bodyObject interface{}) (io.Reader, error) {
 	var body map[string]interface{}
 	tempBody, err := json.Marshal(bodyObject)
 	if err != nil {
@@ -150,7 +148,7 @@ func CreateRequestBody(bodyObject interface{}) (io.Reader, error){
 	if err != nil {
 		return nil, err
 	}
-	
+
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
 		return nil, err

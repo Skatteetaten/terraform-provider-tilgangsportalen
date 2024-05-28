@@ -20,7 +20,7 @@ func (client *Client) AssignEntraGroupToRole(assignment EntraGroupRoleAssignment
 	createGroupURL := "/SKAT_RoleGovernance/AssignAzureADEntitlementToRole"
 
 	// Perform the POST request
-	log.Printf("Performing POST request to url %s, with body %s",createGroupURL,groupBody)
+	log.Printf("Performing POST request to url %s, with body %s", createGroupURL, groupBody)
 	response, err := client.PostRequest(createGroupURL, groupBody)
 	if err != nil {
 		return nil, err
