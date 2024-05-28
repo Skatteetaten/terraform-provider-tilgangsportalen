@@ -29,9 +29,8 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		// TODO: Update this string with the published name of your provider, e.g. registry.terraform.io/skatt/tilgangsportalen
-		Address: "test.sits.no/terraform/tilgangsportalen", // TODO: replace with var
-		Debug:   debug,										// TODO: replace with var
+		Address: "registry.terraform.io/Skatteetaten/tilgangsportalen",
+		Debug:   debug,
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New(version), opts)

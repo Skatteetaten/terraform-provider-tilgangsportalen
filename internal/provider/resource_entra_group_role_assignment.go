@@ -109,7 +109,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		RoleName:   data.RoleName.ValueString(),
 		EntraGroup: data.EntraGroup.ValueString(),
 	}
-	
+
 	_, err := r.client.AssignEntraGroupToRole(roleAssignment)
 
 	if err != nil {
@@ -119,7 +119,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 
 	// Setting role ID to be equal the new role name combining RoleName and GroupName with a pipe
 	data.ID = types.StringValue(fmt.Sprintf("%s|%s", data.RoleName.ValueString(), data.EntraGroup.ValueString()))
-	tflog.Trace(ctx,fmt.Sprintf("resource ID %s|%s added to resource", data.RoleName, data.EntraGroup))
+	tflog.Trace(ctx, fmt.Sprintf("resource ID %s|%s added to resource", data.RoleName, data.EntraGroup))
 
 	tflog.Debug(ctx, fmt.Sprintf("Successfully created Entra Group %s assignment to system Role %s. Role assignment ID set to %s", data.EntraGroup, data.RoleName, data.ID))
 
@@ -138,7 +138,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	tflog.Trace(ctx,"Read Entra Group Role Assignment to see if the role is still assigned to the group")
+	tflog.Trace(ctx, "Read Entra Group Role Assignment to see if the role is still assigned to the group")
 
 	response, err := r.client.ListEntraGroupsForRole(data.RoleName.ValueString())
 	if err != nil {
@@ -151,7 +151,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 
 	for _, group := range response.EntraGroups {
 
-		tflog.Debug(ctx,fmt.Sprintf("Checking if group %s matches the group from resource state %s", group.DisplayName, data.EntraGroup))
+		tflog.Debug(ctx, fmt.Sprintf("Checking if group %s matches the group from resource state %s", group.DisplayName, data.EntraGroup))
 
 		if group.DisplayName == data.EntraGroup.ValueString() {
 			assigned = 1
@@ -160,7 +160,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 
 	// if group is not assigned, then remove it from the state
 	if assigned == 0 {
-		tflog.Debug(ctx,fmt.Sprintf("Group %s is not assigned to role %s, removing from state", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
+		tflog.Debug(ctx, fmt.Sprintf("Group %s is not assigned to role %s, removing from state", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
 		resp.State.RemoveResource(ctx)
 		return
 	}
@@ -170,10 +170,10 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 }
 
 // Update - We have no update API method for role assignments. All changes will
-// require replacement. 
+// require replacement.
 func (r *NewEntraGroupRoleAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data EntraGroupRoleAssignmentModel
-	
+
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -211,7 +211,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Delete(ctx context.Context, req re
 func (r *NewEntraGroupRoleAssignmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, "|")
 
-	tflog.Debug(ctx,fmt.Sprintf("Importing Entra Group Role Assignment with ID %s to state", req.ID))
+	tflog.Debug(ctx, fmt.Sprintf("Importing Entra Group Role Assignment with ID %s to state", req.ID))
 
 	if len(idParts) != 2 {
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Invalid ID %s, expected RoleName|EntraGroupName", req.ID))

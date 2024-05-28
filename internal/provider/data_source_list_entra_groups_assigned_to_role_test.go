@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
+	t.Parallel()
+
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	roleName := fmt.Sprintf("TestNewEntraGroupsForRoleDataSource Role %d", time)
 	testUser := os.Getenv("TF_VAR_TEST_USER")
-	roleName := "TestRole - list Entra groups assigned to role"
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

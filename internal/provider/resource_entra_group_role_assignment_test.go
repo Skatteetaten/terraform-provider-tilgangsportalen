@@ -3,14 +3,19 @@ package provider
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
+	t.Parallel()
 
-	roleName := "role acceptance test assignment"
-	groupName := "[Test] group acceptance test assignment"
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	roleName := fmt.Sprintf("TestCreateNewEntraGroupRoleAssignment Role %d", time)
+	groupName := fmt.Sprintf("[Group] TestCreateNewEntraGroupRoleAssignment %d", time)
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -39,7 +44,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 					role_name = tilgangsportalen_system_role.test_role_group_assignment.name
 					entra_group = tilgangsportalen_entra_group.test_role_group_assignment.name
 				}
-				`,roleName,groupName),
+				`, roleName, groupName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group_role_assignment.test_role_group_assignment", "role_name", roleName),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group_role_assignment.test_role_group_assignment", "entra_group", groupName),

@@ -74,9 +74,11 @@ unit tests:
 acceptance tests:
   image: ${IMAGE_GO}
   stage: test
+  variables:
+    RUNNER_SCRIPT_TIMEOUT: 20min
   script:
     - echo "Prepare Go acceptance tests for provider"
-    - TF_ACC=1 go test -v ./...
+    - TF_ACC=1 go test -cover -timeout=20m -v ./...
   environment:
     name: test
     action: verify

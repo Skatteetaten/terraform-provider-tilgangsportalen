@@ -57,21 +57,21 @@ func (p *TilgangsportalenProvider) Schema(ctx context.Context, req provider.Sche
 			"password": schema.StringAttribute{
 				MarkdownDescription: "Tilgangsportalen password",
 				Optional:            true,
-				Sensitive: 			 true,
+				Sensitive:           true,
 			},
 		},
 	}
 }
 
-// Configure sets up the Tilgangsportalen provider client 
+// Configure sets up the Tilgangsportalen provider client
 func (p *TilgangsportalenProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	
+
 	// Check environment variables
 	urlFormatString := strings.Trim(os.Getenv("TILGANGSPORTALEN_URL"), "\"")
 	password := strings.Trim(os.Getenv("TILGANGSPORTALEN_PASSWORD"), "\"")
 	username := strings.Trim(os.Getenv("TILGANGSPORTALEN_USERNAME"), "\"")
 	var data TilgangsportalenProviderModel
-	
+
 	tflog.Info(ctx, "Configuring Tilgangsportalen client")
 	tflog.Debug(ctx, "Got HostURL from environment variable: %s")
 

@@ -40,7 +40,7 @@ func (d *EntraGroupsDataSource) Metadata(ctx context.Context, req datasource.Met
 	resp.TypeName = req.ProviderTypeName + "_entra_groups"
 }
 
-// Schema for the Entra group datasource 
+// Schema for the Entra group datasource
 func (d *EntraGroupsDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.

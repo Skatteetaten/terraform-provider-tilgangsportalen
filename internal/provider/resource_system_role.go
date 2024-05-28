@@ -160,13 +160,13 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	role := tilgangsportalapi.SystemRole{
-		Name:				data.Name.ValueString(),
-		L2Ident:			data.SystemRoleOwner.ValueString(),
-		L3Ident:			data.SystemRoleSecurityOwner.ValueString(),
-		ApprovalLevel:		data.ApprovalLevel.ValueString(),
-		Description:		data.Description.ValueString(),
-		ProductCategory:	data.ProductCategory.ValueString(),
-		ItShopName:			data.ItShopName.ValueString(),
+		Name:            data.Name.ValueString(),
+		L2Ident:         data.SystemRoleOwner.ValueString(),
+		L3Ident:         data.SystemRoleSecurityOwner.ValueString(),
+		ApprovalLevel:   data.ApprovalLevel.ValueString(),
+		Description:     data.Description.ValueString(),
+		ProductCategory: data.ProductCategory.ValueString(),
+		ItShopName:      data.ItShopName.ValueString(),
 	}
 
 	_, err := r.client.CreateAndPublishSystemRole(role)
@@ -221,10 +221,10 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 	data.ProductCategory = types.StringValue(systemRole.ProductCategory)
 	// If no description is set, GetSystemRole returns an empty string
 	// We only want the plan to show change if description has actually changed
-	if(systemRole.Description=="" && data.Description !=types.StringValue("")){
+	if systemRole.Description == "" && data.Description != types.StringValue("") {
 		data.Description = types.StringNull()
 	} else {
-		data.Description =types.StringValue(systemRole.Description)
+		data.Description = types.StringValue(systemRole.Description)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -273,12 +273,12 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 		!rolePlan.ApprovalLevel.Equal(roleState.ApprovalLevel) || !rolePlan.ProductCategory.Equal(roleState.ProductCategory) {
 
 		role := tilgangsportalapi.SystemRoleChange{
-			RoleName:                namePlan.ValueString(), // identifier for the role, using plan in case the name was changed above
-			SystemRoleOwner:         rolePlan.SystemRoleOwner.ValueString(),
-			SystemRoleSecurityOwner: rolePlan.SystemRoleSecurityOwner.ValueString(),
-			NewApprovalLevel:        rolePlan.ApprovalLevel.ValueString(),
-			NewDescription:          rolePlan.Description.ValueString(),
-			ProductCategory:         rolePlan.ProductCategory.ValueString(),
+			RoleName:         namePlan.ValueString(), // identifier for the role, using plan in case the name was changed above
+			L2Ident:          rolePlan.SystemRoleOwner.ValueString(),
+			L3Ident:          rolePlan.SystemRoleSecurityOwner.ValueString(),
+			NewApprovalLevel: rolePlan.ApprovalLevel.ValueString(),
+			NewDescription:   rolePlan.Description.ValueString(),
+			ProductCategory:  rolePlan.ProductCategory.ValueString(),
 		}
 
 		_, err := r.client.UpdateSystemRole(role)

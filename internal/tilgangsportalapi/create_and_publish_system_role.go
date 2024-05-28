@@ -14,12 +14,12 @@ import (
 func (client *Client) CreateAndPublishSystemRole(role SystemRole) (*http.Response, error) {
 	// Create the system role
 	response, err := client.CreateSystemRole(SystemRole{ // Creating a new system role instance as we don't need all the fields
-		Name:            	role.Name,
-		L2Ident: 		 	role.L2Ident,
-		L3Ident: 			role.L3Ident,
-		ApprovalLevel:   	role.ApprovalLevel,
-		Description:     	role.Description,
-		ProductCategory: 	role.ProductCategory,
+		Name:            role.Name,
+		L2Ident:         role.L2Ident,
+		L3Ident:         role.L3Ident,
+		ApprovalLevel:   role.ApprovalLevel,
+		Description:     role.Description,
+		ProductCategory: role.ProductCategory,
 	})
 	if err != nil {
 		return nil, err

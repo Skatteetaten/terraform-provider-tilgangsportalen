@@ -3,15 +3,20 @@ package provider
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestCreateNewEntraGroup(t *testing.T) {
+	t.Parallel()
 
-	name := "[Test] test new entra group"
-	newName := "[Test] test new entra group new name"
-	alias := "test_new_entra_group_alias"
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	name := fmt.Sprintf("[Group] TestCreateNewEntraGroup %d", time)
+	newName := name + " new name"
+	alias := "TestCreateNewEntraGroup_alias"
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -25,7 +30,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 					description = "terraform provider acceptance test"
 					inheritance_level = "User"
 				}
-				`,name, alias),
+				`, name, alias),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "name", name),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "alias", alias),
@@ -48,7 +53,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 					description = "terraform provider acceptance test"
 					inheritance_level = "User"
 				}
-				`,newName,alias),
+				`, newName, alias),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "alias", alias),
