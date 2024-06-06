@@ -30,6 +30,16 @@ Vi anbefaler at du tar i bruk provideren ved å referere til den publiserte
 versjonen i Terraform Registry.
 
 ```terraform
+
+terraform {
+  required_providers {
+    tilgangsportalen = {
+      source  = "Skatteetaten/tilgangsportalen"
+      version = "~>0.1"
+    }
+  }
+}
+
 provider "tilgangsportalen" {
   hosturl  = var.TILGANGSPORTALEN_URL
   username = var.TILGANGSPORTALEN_USERNAME
@@ -104,7 +114,33 @@ variabler for URL og autentisering for å kunne kjøre lokalt: Sett hemmelighete
  export TF_VAR_TILGANGSPORTALEN_URL='https://tilgang-test.sits.no/ApiServer'
 ```
 
-Naviger til
+Det vil også være nødvendig å overskrive addressen for terraform provideren
+under utvikling:
+
+Opprett en .terraformrc-fil i på hjemmeområdet ditt:
+
+```zsh
+cd $HOME
+nano .terraformrc
+```
+
+Legg til følgende (husk å bytte ut `<Username>`):
+
+```terraform
+provider_installation {
+
+  dev_overrides {
+      "registry.terraform.io/Skatteetaten/tilgangsportalen" = "/Users/<Username>/go/bin"
+  }
+
+  # For all other providers, install them directly from their origin provider
+  # registries as normal. If you omit this, Terraform will _only_ use
+  # the dev_overrides block, and so no other providers will be available.
+  direct {}
+}
+```
+
+Naviger deretter til
 `terraform-provider-tilgangsportalen/examples/provider-install-verification`.
 Endre ev. i terraform-filene der for å definere roller, assignments, outputs
 e.l, og kjør deretter `terraform plan`:
@@ -125,7 +161,7 @@ Tilgangsportalen sitt API i test. For å kjøre testene trenger du å legge inne
 test-bruker-ident. Denne må være en gyldig brukerident i Tilgangsportalen. Du
 kan f.eks. sette den via nano ~/.zshrc som for de andre variablene:
 
-```zsh
+```shell
 
  export TF_VAR_TEST_USER='a00000'
 ```
@@ -141,7 +177,7 @@ du vil sjekke coverage for testene, kan du kjøre `TF_ACC=1 go test -cover`.
 Naviger til directory for filer (Naviger til
 terraform-provider-tilgangsportalen/internal/tilgangsportalapi) og kjør :
 
-```sh
+```shell
 go build .
 go run .
 ```
@@ -162,4 +198,4 @@ roller.
 
 ## Kontaktinformasjon
 
-Team Dataplattform kan nås på <dataplattform@skatteetaten.no>.
+Team Dataplattform kan nås på <dataplattform(at)skatteetaten.no>.
