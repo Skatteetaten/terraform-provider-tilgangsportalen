@@ -162,4 +162,4 @@ roller.
 
 ## Kontaktinformasjon
 
-Team Dataplattform kan nås på <dataplattform@skatteetaten.no>.
+Team Dataplattform kan nås på <dataplattform(at)skatteetaten.no>.
