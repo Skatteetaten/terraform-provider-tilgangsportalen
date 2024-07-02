@@ -26,7 +26,7 @@ stages:
   - test
 
 variables:
-  IMAGE_GO: "gitlab-container-registry.skead.no/azure-tools/container-registry/go:0.3.1@sha256:17e8cab21b3adc479ecc2fdd3cc03ab7db7b686e7a01b7a61e6d76b3130e0a5b"
+  IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0.4.0@sha256:3e817e941cb9d585c489b3739a1f37456df1d4556c82fc725c58020ea4517244"
 
 # Feature branch stages
 
