@@ -16,7 +16,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 	// A timestamp is added to the name to avoid failure due to previous
 	// test failures
 	time := time.Now().Unix()
-	name := fmt.Sprintf("TestCreateNewSystemRole Role %d", time)
+	name := fmt.Sprintf("Test-Create_New_System_Role Role %d", time)
 	newName := name + " new name"
 	testUser := os.Getenv("TF_VAR_TEST_USER")
 	productCategory := "TBD"
