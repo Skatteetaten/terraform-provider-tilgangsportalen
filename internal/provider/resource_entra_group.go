@@ -65,8 +65,8 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The display name of the Entra Group. Must be unique. Please follow the standardized naming conventions for Entra ID groups.",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[\[][æøåÆØÅa-zA-Z0-9 \-\[\]]+$`),
-						"The name of the Entra group must start with a prefix enclosed in square brackets, and may only contain alphanumeric characters, space ( ), square brackets ([]), and dash (-).The maxiumum length is 64 characters.",
+						regexp.MustCompile(`^[\[][æøåÆØÅa-zA-Z0-9 _\-\[\]]+$`),
+						"The name of the Entra group must start with a prefix enclosed in square brackets, and may only contain alphanumeric characters, space ( ), square brackets ([]), underscore (_), and dash (-). The maxiumum length is 64 characters.",
 					),
 					stringvalidator.LengthAtMost(64),
 				},
