@@ -14,7 +14,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 	// A timestamp is added to the name to avoid failure due to previous
 	// test failures
 	time := time.Now().Unix()
-	name := fmt.Sprintf("[Group] TestCreateNewEntraGroup %d", time)
+	name := fmt.Sprintf("[Group] Test-Create_New_Entra_Group %d", time)
 	newName := name + " new name"
 	alias := "TestCreateNewEntraGroup_alias"
 
