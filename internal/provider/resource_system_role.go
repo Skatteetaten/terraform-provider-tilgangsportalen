@@ -68,8 +68,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The name of the system role to be created. Please follow the standardized naming conventions for roles.",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 -]+$`),
-						"The name of the role may only contain alphanumeric characters, space ( ), and dash (-), and the maximum length is 256 characters.",
+						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 _-]+$`),
+						"The name of the role may only contain alphanumeric characters, space ( ), underscore (_), and dash (-). The maximum length is 256 characters.",
 					),
 					stringvalidator.LengthAtMost(256),
 				},
