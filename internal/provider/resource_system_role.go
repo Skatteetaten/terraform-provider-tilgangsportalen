@@ -79,8 +79,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The owner of the role, identified by their user ident",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[[a-zA-Z][0-9]{2}[a-zA-Z]{3}|[a-zA-Z][0-9]{5}$`),
-						"Must be a valid user ident in the form of x00000 or x00xxx",
+						regexp.MustCompile(`^[a-zA-Z0-9]{6}$`),
+						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (letters and numbers only).",
 					),
 				},
 			},
@@ -89,8 +89,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The security owner of the role. Required if the approval level is L3",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[[a-zA-Z][0-9]{2}[a-zA-Z]{3}|[a-zA-Z][0-9]{5}$`),
-						"Must be a valid user ident in the form of x00000 or x00xxx",
+						regexp.MustCompile(`^[a-zA-Z0-9]{6}$`),
+						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (letters and numbers only).",
 					),
 				},
 			},
@@ -107,8 +107,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "A description of the role",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,?!_()/\-\[\]]*$`),
-						"The description may only contain alphanumeric characters, punctuation (.,?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
+						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,:;?!_()/\-\[\]]*$`),
+						"The description may only contain alphanumeric characters, punctuation (.,:;?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
 					),
 				},
 			},
