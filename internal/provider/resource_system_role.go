@@ -107,8 +107,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "A description of the role",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,?!_()/\-\[\]]*$`),
-						"The description may only contain alphanumeric characters, punctuation (.,?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
+						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,:;?!_()/\-\[\]]*$`),
+						"The description may only contain alphanumeric characters, punctuation (.,:;?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
 					),
 				},
 			},

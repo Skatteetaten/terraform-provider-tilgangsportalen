@@ -7,6 +7,8 @@ BUG FIXES:
 - `tilgangsportalen_system_role` - Updated the user intent validation to
   require excactly 6 alphanumeric characters, as not all user identifiers follow
   the format `x00000` or `x00xxx`.
+- `tilgangsportalen_entra_group` - Allow colons (:) and semicolons (;) in the description
+- `tilgangsportalen_system_role` - Allow colons (:) and semicolons (;) in the description
 
 ## 0.1.1
 
