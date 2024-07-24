@@ -17,7 +17,7 @@ og Tilgangsportalen-APIet. Følgende guide fra hashicorp er brukt som
 utgangspunkt og inspirasjon i utviklingen av denne provideren:
 [Implement a provider with the Terraform Plugin Framework](https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework/providers-plugin-framework-provider).
 Provideren er tilgjengelig via terraform registry:
-[terraform-provider-tilgangsportalen](https://registry.terraform.io/providers/hashicorp/tilgangsportalen/latest)
+[terraform-provider-tilgangsportalen](https://registry.terraform.io/providers/Skatteetaten/tilgangsportalen/latest)
 Provideren er utviklet internt i Skatteetaten, av Team Dataplattform, primært
 for å dekke våre egne behov. Vi håper den også vil komme andre til nytte. For
 spørsmål knyttet til provideren, for å melde feil, eller for å etterspørre ny
@@ -41,11 +41,22 @@ terraform {
 }
 
 provider "tilgangsportalen" {
-  hosturl  = var.TILGANGSPORTALEN_URL
-  username = var.TILGANGSPORTALEN_USERNAME
-  password = var.TILGANGSPORTALEN_PASSWORD
+  # It's recommended to use environment variables when configuring the provider
+  # hosturl  = var.tilgangsportalen_url
+  # username = var.tilgangsportalen_username
+  # password = var.tilgangsportalen_password
 }
 ```
+
+### Miljøvariabler
+
+Følgende konfigurasjonsattributter kan settes via miljøvariabler:
+
+|   Argument | Miljøvariabel               |
+| ---------: | --------------------------- |
+|  `hosturl` | `TILGANGSPORTALEN_URL`      |
+| `username` | `TILGANGSPORTALEN_USERNAME` |
+| `password` | `TILGANGSPORTALEN_PASSWORD` |
 
 ## Tilgjengelig funksjonalitet
 
@@ -59,15 +70,17 @@ du identifiserer deg med mot Tilgangsportalen.
 
 ## Kom i gang med utvikling
 
-### Innstaller avhengigheter
+### Installer avhengigheter
 
 [Go >=1.21](https://go.dev/doc/install)
 
-`$ brew install go`
+```shell
+brew install go
+```
 
 [Terraform >= 1.5+](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
-```zsh
+```shell
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
 ```
@@ -81,7 +94,7 @@ gyldig bruker mot Tilgangsportalen API-et.
 2. Naviger til `terraform-provider-tilgangsportalen/internal`
 3. Kjør kommandoen `go install all`
 
-```sh
+```shell
 go install all
 
 ```
@@ -90,14 +103,14 @@ go install all
 
 Avhengigheter kan oppdateres med:
 
-```sh
+```shell
 go mod tidy
 
 ```
 
 Bygg deretter provideren på nytt:
 
-```sh
+```shell
 go install all
 
 ```
@@ -106,12 +119,12 @@ go install all
 
 Test av provideren kjøres mot Tilgangsportalens test-api. Vi må sette lokale
 variabler for URL og autentisering for å kunne kjøre lokalt: Sett hemmeligheter
-(via nano ~/.zshrc):
+(via `nano ~/.zshrc`):
 
-```zsh
- export TF_VAR_TILGANGSPORTALEN_USERNAME='DittBrukernavnHer'
- export TF_VAR_TILGANGSPORTALEN_PASSWORD='DittPassordHer'
- export TF_VAR_TILGANGSPORTALEN_URL='https://tilgang-test.sits.no/ApiServer'
+```shell
+export TILGANGSPORTALEN_USERNAME='DittBrukernavnHer'
+export TILGANGSPORTALEN_PASSWORD='DittPassordHer'
+export TILGANGSPORTALEN_URL='https://tilgang-test.sits.no/ApiServer'
 ```
 
 Det vil også være nødvendig å overskrive addressen for terraform provideren
@@ -119,7 +132,7 @@ under utvikling:
 
 Opprett en .terraformrc-fil i på hjemmeområdet ditt:
 
-```zsh
+```shell
 cd $HOME
 nano .terraformrc
 ```
@@ -145,7 +158,7 @@ Naviger deretter til
 Endre ev. i terraform-filene der for å definere roller, assignments, outputs
 e.l, og kjør deretter `terraform plan`:
 
-```sh
+```shell
 terraform plan
 ```
 
@@ -159,11 +172,10 @@ definert. Ressursene opprettes i test.
 Det er lagt inn en rekke akseptansetester for provideren. Disse kjører mot
 Tilgangsportalen sitt API i test. For å kjøre testene trenger du å legge inne en
 test-bruker-ident. Denne må være en gyldig brukerident i Tilgangsportalen. Du
-kan f.eks. sette den via nano ~/.zshrc som for de andre variablene:
+kan f.eks. sette den via `nano ~/.zshrc` som for de andre variablene:
 
 ```shell
-
- export TF_VAR_TEST_USER='a00000'
+export ACC_TEST_SYSTEM_ROLE_OWNER='a00000'
 ```
 
 For at testene skal kjøre på TF_ACC være satt til en verdi. Dette kan du gjøre
@@ -182,19 +194,24 @@ go build .
 go run .
 ```
 
-## IT Shop
+### Generere dokumentasjon
 
-Opprettelse av en rolle i Tilgangsportalen er en prosess som består av to steg;
+Vi bruker [`terraform-plugin-docs`](https://github.com/hashicorp/terraform-plugin-docs)
+for å generere dokumentasjon. Slik installerer du det:
 
-1. lag rolle
-2. publiser rolle
+```shell
+export GOBIN=$PWD/bin
+export PATH=$GOBIN:$PATH
+go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+```
 
-Når man publiserer en rolle gjør man den tilgjngelig for brukere i den gitte IT
-shop-en. Det finnes mulighet i Tilgangsportalen for å ha forskjellige IT shops,
-slik at tilgangen for brukere til å se og søke på roller kan styres gjennom å
-tilgangsstyre disse IT shop-ene. Per nå trenger vi kun å forholde oss til én IT
-shop; **"General access shop shelf"** ("Access shop shelf" i test) for alle
-roller.
+Slik generer du dokumentasjon:
+
+```shell
+tfplugindocs generate --rendered-provider-name Tilgangsportalen
+```
+
+Mer dokumentasjon ligger på GitHub: <https://github.com/hashicorp/terraform-plugin-docs>
 
 ## Kontaktinformasjon
 
