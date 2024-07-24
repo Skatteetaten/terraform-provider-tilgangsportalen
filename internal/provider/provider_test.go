@@ -17,7 +17,7 @@ provider "tilgangsportalen" {
 	username = "%s"
 	password = "%s"
 }
-`, os.Getenv("TF_VAR_TILGANGSPORTALEN_URL"), os.Getenv("TF_VAR_TILGANGSPORTALEN_USERNAME"), os.Getenv("TF_VAR_TILGANGSPORTALEN_PASSWORD"))
+`, os.Getenv("TILGANGSPORTALEN_URL"), os.Getenv("TILGANGSPORTALEN_USERNAME"), os.Getenv("TILGANGSPORTALEN_PASSWORD"))
 
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"tilgangsportalen": providerserver.NewProtocol6WithError(New("test")()),

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -15,6 +16,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 	// test failures
 	time := time.Now().Unix()
 	roleName := fmt.Sprintf("TestCreateNewEntraGroupRoleAssignment Role %d", time)
+	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	groupName := fmt.Sprintf("[Group] TestCreateNewEntraGroupRoleAssignment %d", time)
 
 	resource.Test(t, resource.TestCase{
@@ -27,10 +29,9 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 				resource "tilgangsportalen_system_role" "test_role_group_assignment" {
 					name              = "%s"
 					product_category  = "TBD"
-					system_role_owner = "M00245"
+					system_role_owner = "%s"
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
-					it_shop_name      = "Access shop shelf"
 				} 
 
 				resource "tilgangsportalen_entra_group" "test_role_group_assignment" {
@@ -44,7 +45,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 					role_name = tilgangsportalen_system_role.test_role_group_assignment.name
 					entra_group = tilgangsportalen_entra_group.test_role_group_assignment.name
 				}
-				`, roleName, groupName),
+				`, roleName, testUser, groupName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group_role_assignment.test_role_group_assignment", "role_name", roleName),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group_role_assignment.test_role_group_assignment", "entra_group", groupName),

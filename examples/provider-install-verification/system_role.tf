@@ -19,6 +19,5 @@
 #   product_category  = "TBD"
 #   system_role_owner = "a00000" # Replace with valid user
 #   approval_level    = "L2"
-#   it_shop_name      = "Access shop shelf"
 
 # }

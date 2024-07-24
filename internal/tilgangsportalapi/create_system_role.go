@@ -6,7 +6,7 @@ import (
 )
 
 // CreateSystemRole creates a system role. The fields Name, ApprovalLevel,
-// IsForITShop, ProductCategory are mandatory and need to be included in the
+// ProductCategory are mandatory and need to be included in the
 // SystemRole object. The name must be unique.
 // See https://wiki.sits.no/display/IDABAS/2.1.+Create+Role
 func (client *Client) CreateSystemRole(role SystemRole) (*http.Response, error) {
