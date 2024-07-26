@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0
+
+ENHANCEMENTS:
+
+- `tilgangsportalen_system_role` now uses the new API endpoint `CreateRole`
+- Minor improvements to docs and tests
+- Removed regex validation from description field in `system_role` and `entra_group` resources
+
+DEPRECATIONS:
+
+- `it_shop_name` in `tilgangsportalen_system_role` is now deprecated and will
+  be removed in a future release
+
 ## 0.1.2
 
 BUG FIXES:

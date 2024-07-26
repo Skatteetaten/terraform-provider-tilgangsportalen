@@ -56,13 +56,6 @@ type SystemRole struct {
 	ItShopName      string `json:"ITShopName"`
 }
 
-// PublishSystemRole represents the API body used when publishing a role
-// with Name to the it shop given
-type PublishSystemRole struct {
-	Name   string `json:"Name"`
-	ITShop string `json:"ITShop"`
-}
-
 // SystemRoleChange represents the API body for modifying the fields of
 // a role
 type SystemRoleChange struct {

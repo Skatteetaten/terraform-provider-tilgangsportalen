@@ -105,23 +105,15 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 			"description": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "A description of the role",
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,:;?!_()/\-\[\]]*$`),
-						"The description may only contain alphanumeric characters, punctuation (.,:;?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
-					),
-				},
 			},
 			"product_category": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "The product category (tjenestekategori) for this role. Should match an existing product catogory in tilgangsportalen",
 			},
 			"it_shop_name": schema.StringAttribute{
-				Required:            true,
+				Optional:            true,
+				DeprecationMessage:  "This field is deprecated and will be removed in a future version.",
 				MarkdownDescription: "The name of the IT shop",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
 			},
 		},
 	}
@@ -169,7 +161,7 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 		ItShopName:      data.ItShopName.ValueString(),
 	}
 
-	_, err := r.client.CreateAndPublishSystemRole(role)
+	_, err := r.client.CreateSystemRole(role)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create System Role %s, got error: %s", data.Name, err))
 		return

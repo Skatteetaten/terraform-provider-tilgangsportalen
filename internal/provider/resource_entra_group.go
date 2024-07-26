@@ -89,13 +89,6 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"description": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "A description of the Entra Group",
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[æøåÆØÅa-zA-Z0-9 .,:;?!_()/\-\[\]]*$`),
-						"The description may only contain alphanumeric characters, punctuation (.,:;?!), space ( ), brackets (()), square brackets ([]),  forward slash (/), underscore (_), and dash (-).",
-					),
-				},
-
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},

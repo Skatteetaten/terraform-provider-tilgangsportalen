@@ -18,13 +18,25 @@ func TestCreateNewSystemRole(t *testing.T) {
 	time := time.Now().Unix()
 	name := fmt.Sprintf("Test-Create_New_System_Role Role %d", time)
 	newName := name + " new name"
-	testUser := os.Getenv("TF_VAR_TEST_USER")
+	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	productCategory := "TBD"
 	approvalLevel := "L2"
-	description := "Terraform acceptance test role."
-	newDescription := "Terraform acceptance test role new description."
-	itShopName := "Access shop shelf"
-
+	// Testing special characters and line breaks in the group description. 
+	// The number of "\" characters changes in the expected description due to the use of GO´s Raw string literals in the input description.
+	description := `<<-EOT
+	Terraform_'acceptance'\n-_øåæ\tØÅÆ
+	'!#$x%&/
+	()[]{}'?!=(a){b}[c]@^*<>:,;.|
+	\"test\" \t\"r\"ole
+	EOT`
+	newDescription := `<<-EOT
+	Terraform_new_'acceptance'\n-_øåæ\tØÅÆ
+	'!#$x%&/
+	()[]{}'?!=(a){b}[c]@^*<>:,;.|
+	\"test\" \t\"r\"ole
+	EOT`
+	expectedDescription := "Terraform_'acceptance'\\n-_øåæ\\tØÅÆ\n'!#$x%&/\n()[]{}'?!=(a){b}[c]@^*<>:,;.|\n\\\"test\\\" \\t\\\"r\\\"ole\n"
+	expectedNewDescription := "Terraform_new_'acceptance'\\n-_øåæ\\tØÅÆ\n'!#$x%&/\n()[]{}'?!=(a){b}[c]@^*<>:,;.|\n\\\"test\\\" \\t\\\"r\\\"ole\n"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 
@@ -36,26 +48,23 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
-					it_shop_name      = "%s"
+					description       = %s
 				} 
 
 				data "tilgangsportalen_system_roles" "all_roles" {}
-				`, name, productCategory, testUser, approvalLevel, description, itShopName),
+				`, name, productCategory, testUser, approvalLevel, description),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", name),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", description),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "it_shop_name", itShopName),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedDescription),
 				),
 			},
 			// test import to state using ImportStateCheckFunc
 			{
-				ImportState:             true,
-				ResourceName:            "tilgangsportalen_system_role.test_role",
-				ImportStateVerifyIgnore: []string{"it_shop_name"},
+				ImportState:  true,
+				ResourceName: "tilgangsportalen_system_role.test_role",
 			},
 			// test update name
 			{
@@ -65,17 +74,15 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
-					it_shop_name      = "%s"
+					description       = %s
 				} 
-				`, newName, productCategory, testUser, approvalLevel, description, itShopName),
+				`, newName, productCategory, testUser, approvalLevel, description),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", description),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "it_shop_name", itShopName),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedDescription),
 				),
 			},
 			// test update description
@@ -86,17 +93,15 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
-					it_shop_name      = "%s"
+					description       = %s
 				} 
-				`, newName, productCategory, testUser, approvalLevel, newDescription, itShopName),
+				`, newName, productCategory, testUser, approvalLevel, newDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", newDescription),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "it_shop_name", itShopName),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedNewDescription),
 				),
 			},
 		},
