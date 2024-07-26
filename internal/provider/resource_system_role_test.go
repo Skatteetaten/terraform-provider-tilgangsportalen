@@ -21,9 +21,22 @@ func TestCreateNewSystemRole(t *testing.T) {
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	productCategory := "TBD"
 	approvalLevel := "L2"
-	description := "Terraform acceptance test role."
-	newDescription := "Terraform acceptance test role new description."
-
+	// Testing special characters and line breaks in the group description. 
+	// The number of "\" characters changes in the expected description due to the use of GO´s Raw string literals in the input description.
+	description := `<<-EOT
+	Terraform_'acceptance'\n-_øåæ\tØÅÆ
+	'!#$x%&/
+	()[]{}'?!=(a){b}[c]@^*<>:,;.|
+	\"test\" \t\"r\"ole
+	EOT`
+	newDescription := `<<-EOT
+	Terraform_new_'acceptance'\n-_øåæ\tØÅÆ
+	'!#$x%&/
+	()[]{}'?!=(a){b}[c]@^*<>:,;.|
+	\"test\" \t\"r\"ole
+	EOT`
+	expectedDescription := "Terraform_'acceptance'\\n-_øåæ\\tØÅÆ\n'!#$x%&/\n()[]{}'?!=(a){b}[c]@^*<>:,;.|\n\\\"test\\\" \\t\\\"r\\\"ole\n"
+	expectedNewDescription := "Terraform_new_'acceptance'\\n-_øåæ\\tØÅÆ\n'!#$x%&/\n()[]{}'?!=(a){b}[c]@^*<>:,;.|\n\\\"test\\\" \\t\\\"r\\\"ole\n"
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 
@@ -35,7 +48,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
+					description       = %s
 				} 
 
 				data "tilgangsportalen_system_roles" "all_roles" {}
@@ -45,7 +58,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", description),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedDescription),
 				),
 			},
 			// test import to state using ImportStateCheckFunc
@@ -61,7 +74,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
+					description       = %s
 				} 
 				`, newName, productCategory, testUser, approvalLevel, description),
 				Check: resource.ComposeTestCheckFunc(
@@ -69,7 +82,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", description),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedDescription),
 				),
 			},
 			// test update description
@@ -80,7 +93,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					product_category  = "%s"
 					system_role_owner = "%s"
 					approval_level    = "%s"
-					description       = "%s"
+					description       = %s
 				} 
 				`, newName, productCategory, testUser, approvalLevel, newDescription),
 				Check: resource.ComposeTestCheckFunc(
@@ -88,7 +101,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "product_category", productCategory),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "system_role_owner", testUser),
 					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "approval_level", approvalLevel),
-					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", newDescription),
+					resource.TestCheckResourceAttr("tilgangsportalen_system_role.test_role", "description", expectedNewDescription),
 				),
 			},
 		},
