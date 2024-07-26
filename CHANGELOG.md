@@ -6,6 +6,7 @@ ENHANCEMENTS:
 
 - `tilgangsportalen_system_role` now uses the new API endpoint `CreateRole`
 - Minor improvements to docs and tests
+- Removed regex validation from description field in `system_role` and `entra_group` resources
 
 DEPRECATIONS:
 
