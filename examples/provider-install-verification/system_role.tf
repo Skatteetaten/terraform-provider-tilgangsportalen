@@ -19,5 +19,4 @@
 #   product_category  = "TBD"
 #   system_role_owner = "a00000" # Replace with valid user
 #   approval_level    = "L2"
-
 # }
