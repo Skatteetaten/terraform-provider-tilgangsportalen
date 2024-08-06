@@ -11,6 +11,7 @@ resource "tilgangsportalen_system_role" "example" {
   system_role_owner = "m00001" # identity of the user who is the owner of the system role
   approval_level    = "L2"     # approval level of the system role
   description       = "Role for giving access to group_1 assigned resources."
+  it_shop_name      = "General access shop shelf" # Optional. Defaults to "General access shop shelf"
 }
 
 

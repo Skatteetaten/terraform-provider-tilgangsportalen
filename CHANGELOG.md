@@ -1,6 +1,23 @@
 # Changelog
 
+## 0.3.0
+
+CHANGES:
+
+- Rolled back changes to `it_shop_name` in `tilgangsportalen_system_role` that were introduced in v0.2.0. `it_shop_name` is no longer deprecated.
+- `it_shop_name` in `tilgangsportalen_system_role` is now optional. Defaults to "General access shop shelf".
+- `tilgangsportalen_entra_group` - Added length validation to the group description field. The max length is now set to 1024 characters.
+
+BUG FIXES:
+
+- Fixed a bug introduced in v0.2.0 where system roles were not being published after their creation.
+
 ## 0.2.0
+
+WARNING:
+
+This version of the provider contains a bug that causes system roles not to be published after their creation.
+This bug has been fixed in v0.3.0 of the provider.
 
 ENHANCEMENTS:
 

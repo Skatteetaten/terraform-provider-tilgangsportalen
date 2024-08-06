@@ -111,9 +111,12 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The product category (tjenestekategori) for this role. Should match an existing product catogory in tilgangsportalen",
 			},
 			"it_shop_name": schema.StringAttribute{
-				Optional:            true,
-				DeprecationMessage:  "This field is deprecated and will be removed in a future version.",
-				MarkdownDescription: "The name of the IT shop",
+				Optional: 					 true,
+				MarkdownDescription: "The name of the IT shop. Defaults to 'General access shop shelf'",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 		},
 	}
@@ -161,7 +164,7 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 		ItShopName:      data.ItShopName.ValueString(),
 	}
 
-	_, err := r.client.CreateSystemRole(role)
+	_, err := r.client.CreateAndPublishSystemRole(role)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create System Role %s, got error: %s", data.Name, err))
 		return

@@ -17,7 +17,9 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 	time := time.Now().Unix()
 	roleName := fmt.Sprintf("TestNewEntraGroupsForRoleDataSource Role %d", time)
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
+	itShopName := "General access shop shelf"
 
+	
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 
@@ -30,6 +32,8 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 					system_role_owner = "%s"
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
+					it_shop_name      = "%s"
+
 				} 
 
 				resource "tilgangsportalen_entra_group" "test_role_assignment_data_source" {
@@ -47,7 +51,7 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 				data "tilgangsportalen_entra_groups_assigned_to_role" "groups_assigned_role" {
 					role_name = tilgangsportalen_system_role.test_role_assignment_data_source.name
 				}
-				`, roleName, testUser),
+				`, roleName, testUser,itShopName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "role_name", roleName),
 				),

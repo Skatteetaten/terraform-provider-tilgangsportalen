@@ -89,6 +89,10 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"description": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "A description of the Entra Group",
+				Validators: []validator.String{
+					// Tilgangsportalen API returns an error if the group description is longer than 1024 characters. 
+					stringvalidator.LengthAtMost(1024),
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
