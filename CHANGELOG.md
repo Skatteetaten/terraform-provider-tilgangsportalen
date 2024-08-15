@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1
+
+BUG FIXES:
+
+- `tilgangsportalen_system_role` - fixed import function to include missing ID field
+
+ENHANCEMENTS:
+
+- Changed data source unit test for `tilgangsportalen_entra_groups_assigned_to_role` to use unique Entra group name to avoid blocking resources
+
 ## 0.3.0
 
 CHANGES:

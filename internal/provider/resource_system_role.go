@@ -111,7 +111,7 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The product category (tjenestekategori) for this role. Should match an existing product catogory in tilgangsportalen",
 			},
 			"it_shop_name": schema.StringAttribute{
-				Optional: 					 true,
+				Optional:            true,
 				MarkdownDescription: "The name of the IT shop. Defaults to 'General access shop shelf'",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -333,6 +333,7 @@ func (r *NewSystemRoleResource) ImportState(ctx context.Context, req resource.Im
 
 	// Save updated data into Terraform state
 	role := SystemRoleModel{
+		ID:                      types.StringValue(response.Name),
 		Name:                    types.StringValue(response.Name),
 		Description:             types.StringValue(response.Description),
 		ApprovalLevel:           types.StringValue(response.ApprovalLevel),
