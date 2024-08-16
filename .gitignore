@@ -86,3 +86,6 @@ coverage.html
 # Local .env files
 .env
 .test.env
+
+# Terraform binary file in the root directory
+terraform-provider-tilgangsportalen
