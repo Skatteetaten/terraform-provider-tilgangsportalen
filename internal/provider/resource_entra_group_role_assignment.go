@@ -132,8 +132,8 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	var data EntraGroupRoleAssignmentModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -187,8 +187,8 @@ func (r *NewEntraGroupRoleAssignmentResource) Delete(ctx context.Context, req re
 	var data EntraGroupRoleAssignmentModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

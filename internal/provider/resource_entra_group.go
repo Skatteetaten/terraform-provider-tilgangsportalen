@@ -90,7 +90,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 				Optional:            true,
 				MarkdownDescription: "A description of the Entra Group",
 				Validators: []validator.String{
-					// Tilgangsportalen API returns an error if the group description is longer than 1024 characters. 
+					// Tilgangsportalen API returns an error if the group description is longer than 1024 characters.
 					stringvalidator.LengthAtMost(1024),
 				},
 				PlanModifiers: []planmodifier.String{
@@ -168,8 +168,8 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	var data EntraGroupModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -231,8 +231,8 @@ func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteR
 	var data EntraGroupModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.0
+
+Breaking change:
+
+- `tilgangsportalen_system_role` - only allow lowercase for fields `system_role_security_owner` and `system_role_owner`
+
+BUG FIXES:
+
+- `tilgangsportalen_system_role` - fixed import function to include missing ID field
+
+ENHANCEMENTS:
+
+- Add `ImportStateVerify` to import state tests
+- On read `tilgangsportalen_system_role` update `system_role_owner` and `system_role_security_owner` in state
+- Improved unit tests
+
+tilgangsportalapi:
+
+- `GetSystemRole`always returns lowercase `L2Ident` and `L3Ident`.
+
 ## 0.3.0
 
 CHANGES:
