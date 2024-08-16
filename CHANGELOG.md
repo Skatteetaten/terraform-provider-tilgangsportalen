@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.3.1
+## 0.4.0
+
+Breaking change:
+
+- `tilgangsportalen_system_role` - only allow lowercase for fields `system_role_security_owner` and `system_role_owner`
 
 BUG FIXES:
 
@@ -8,7 +12,13 @@ BUG FIXES:
 
 ENHANCEMENTS:
 
-- Changed data source unit test for `tilgangsportalen_entra_groups_assigned_to_role` to use unique Entra group name to avoid blocking resources
+- Add `ImportStateVerify` to import state tests
+- On read `tilgangsportalen_system_role` update `system_role_owner` and `system_role_security_owner` in state
+- Improved unit tests
+
+tilgangsportalapi:
+
+- `GetSystemRole`always returns lowercase `L2Ident` and `L3Ident`.
 
 ## 0.3.0
 

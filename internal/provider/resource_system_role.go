@@ -79,8 +79,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The owner of the role, identified by their user ident",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[a-zA-Z0-9]{6}$`),
-						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (letters and numbers only).",
+						regexp.MustCompile(`^[a-z0-9]{6}$`),
+						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (lowercase letters and numbers only).",
 					),
 				},
 			},
@@ -89,8 +89,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The security owner of the role. Required if the approval level is L3",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[a-zA-Z0-9]{6}$`),
-						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (letters and numbers only).",
+						regexp.MustCompile(`^[a-z0-9]{6}$`),
+						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (lowercase letters and numbers only).",
 					),
 				},
 			},
@@ -184,7 +184,8 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 	var data SystemRoleModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -212,14 +213,22 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 
 	// Map to SystemRoleModel and save updated data into Terraform state
 	data.Name = types.StringValue(systemRole.Name)
+	data.SystemRoleOwner = types.StringValue(systemRole.L2Ident)
 	data.ApprovalLevel = types.StringValue(systemRole.ApprovalLevel)
 	data.ProductCategory = types.StringValue(systemRole.ProductCategory)
+
 	// If no description is set, GetSystemRole returns an empty string
 	// We only want the plan to show change if description has actually changed
 	if systemRole.Description == "" && data.Description != types.StringValue("") {
 		data.Description = types.StringNull()
 	} else {
 		data.Description = types.StringValue(systemRole.Description)
+	}
+	// same with system role owner / L3
+	if systemRole.L3Ident == "" && data.SystemRoleSecurityOwner != types.StringValue("") {
+		data.SystemRoleSecurityOwner = types.StringNull()
+	} else {
+		data.SystemRoleSecurityOwner = types.StringValue(systemRole.L3Ident)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -294,8 +303,8 @@ func (r *NewSystemRoleResource) Delete(ctx context.Context, req resource.DeleteR
 	var data SystemRoleModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
+	diags := req.State.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -331,15 +340,18 @@ func (r *NewSystemRoleResource) ImportState(ctx context.Context, req resource.Im
 		return
 	}
 
-	// Save updated data into Terraform state
 	role := SystemRoleModel{
 		ID:                      types.StringValue(response.Name),
 		Name:                    types.StringValue(response.Name),
 		Description:             types.StringValue(response.Description),
 		ApprovalLevel:           types.StringValue(response.ApprovalLevel),
 		SystemRoleOwner:         types.StringValue(response.L2Ident),
-		SystemRoleSecurityOwner: types.StringValue(response.L3Ident),
+		SystemRoleSecurityOwner: types.StringNull(), //default null, only applicable if approval level is L3
 		ProductCategory:         types.StringValue(response.ProductCategory),
+	}
+
+	if response.ApprovalLevel == "L3" {
+		role.SystemRoleSecurityOwner = types.StringValue(response.L3Ident)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &role)...)

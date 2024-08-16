@@ -23,7 +23,7 @@ func TestCreateNewSystemRole(t *testing.T) {
 	approvalLevel := "L2"
 	itShopName := "General access shop shelf"
 
-	// Testing special characters and line breaks in the group description. 
+	// Testing special characters and line breaks in the group description.
 	// The number of "\" characters changes in the expected description due to the use of GO´s Raw string literals in the input description.
 	description := `<<-EOT
 	Terraform_'acceptance'\n-_øåæ\tØÅÆ
@@ -67,8 +67,9 @@ func TestCreateNewSystemRole(t *testing.T) {
 			},
 			// test import to state using ImportStateCheckFunc
 			{
-				ImportState:  true,
-				ResourceName: "tilgangsportalen_system_role.test_role",
+				ImportState:             true,
+				ResourceName:            "tilgangsportalen_system_role.test_role",
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"it_shop_name"},
 			},
 			// test update name
