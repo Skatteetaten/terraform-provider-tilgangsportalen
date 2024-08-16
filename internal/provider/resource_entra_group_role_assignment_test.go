@@ -56,6 +56,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 			{
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group_role_assignment.test_role_group_assignment",
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"alias", "description", "inheritance_level"},
 			},
 		},

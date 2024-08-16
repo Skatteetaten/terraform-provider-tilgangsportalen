@@ -17,7 +17,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 	name := fmt.Sprintf("[Group] Test-Create_New_Entra_Group %d", time)
 	newName := name + " new name"
 	alias := "TestCreateNewEntraGroup_alias"
-	// Testing special characters and line breaks in the group description. 
+	// Testing special characters and line breaks in the group description.
 	// The number of "\" characters changes in the expected description due to the use of GO´s Raw string literals in the input description.
 	description := `<<-EOT
 	Terraform_'acceptance'\n-_øåæ\tØÅÆ
@@ -51,6 +51,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 			{
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group.test",
+				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"alias", "description", "inheritance_level"},
 			},
 			// test update name
