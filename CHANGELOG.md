@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0
+
+Breaking change:
+
+- `tilgangsportalen_system_role` - `alias` has been removed as it is handled in the backend creating value "NotSet" with a incrementing number to ensure uniqueness.
+
+ENHANCEMENTS:
+
+- `tilgangsportalen_system_role` - allows DisplayName up to 256 characters.
+- New data source `tilgangsportalen_system_role` that gets all details from API. NB. The API does not currently seem to return a value for `it_shop_name`
+
 ## 0.4.0
 
 Breaking change:
