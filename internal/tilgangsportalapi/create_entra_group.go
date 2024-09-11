@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// CreateEntraGroup creates an Entra ID group. The fields DisplayName, Alias,
+// CreateEntraGroup creates an Entra ID group. The fields DisplayName
 // and Tenant are mandatory and need to be included in the EntraGroup object.
 // The Displayname must be unique.
 // See https://wiki.sits.no/display/IDABAS/2.+Create+systemrole

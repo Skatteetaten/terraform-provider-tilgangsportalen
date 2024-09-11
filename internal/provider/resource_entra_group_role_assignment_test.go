@@ -37,7 +37,6 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 
 				resource "tilgangsportalen_entra_group" "test_role_group_assignment" {
 					name = "%s"
-					alias = "group_acceptance_test_for_assignment"
 					description = "terraform provider acceptance test"
 					inheritance_level = "User"
 				}
@@ -57,7 +56,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group_role_assignment.test_role_group_assignment",
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"alias", "description", "inheritance_level"},
+				ImportStateVerifyIgnore: []string{"description", "inheritance_level"},
 			},
 		},
 	})

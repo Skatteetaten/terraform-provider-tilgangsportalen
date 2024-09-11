@@ -1,9 +1,9 @@
-# terraform {
-#   required_providers {
-#     tilgangsportalen = {
-#       source = "skatteetaten/tilgangsportalen"
-#     }
-#   }
-# }
+terraform {
+  required_providers {
+    tilgangsportalen = {
+      source = "skatteetaten/tilgangsportalen"
+    }
+  }
+}
 
-# provider "tilgangsportalen" {}
+provider "tilgangsportalen" {}

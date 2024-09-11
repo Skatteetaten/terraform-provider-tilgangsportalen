@@ -35,7 +35,6 @@ type NewEntraGroupResource struct {
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
 	DisplayName      types.String `tfsdk:"name"`
-	Alias            types.String `tfsdk:"alias"`
 	Description      types.String `tfsdk:"description"`
 	InheritanceLevel types.String `tfsdk:"inheritance_level"`
 }
@@ -66,24 +65,9 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
 						regexp.MustCompile(`^[\[][æøåÆØÅa-zA-Z0-9 _\-\[\]]+$`),
-						"The name of the Entra group must start with a prefix enclosed in square brackets, and may only contain alphanumeric characters, space ( ), square brackets ([]), underscore (_), and dash (-). The maxiumum length is 64 characters.",
+						"The name of the Entra group must start with a prefix enclosed in square brackets, and may only contain alphanumeric characters, space ( ), square brackets ([]), underscore (_), and dash (-). The maxiumum length is 256 characters.",
 					),
-					stringvalidator.LengthAtMost(64),
-				},
-			},
-			"alias": schema.StringAttribute{
-				Required:            true,
-				MarkdownDescription: "The alias of the Entra Group. Must be unique.",
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[^@()\\\[\]";:<>, ]+$`), // same limitations as mailNickname, see microsoft documentation
-						"The alias is mandatory and it may not contain the characters @ , () \\ [] \" ; : <> SPACE. The max length is 64 characters.",
-					),
-					stringvalidator.LengthAtMost(64),
-				},
-
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringvalidator.LengthAtMost(256),
 				},
 			},
 			"description": schema.StringAttribute{
@@ -143,7 +127,6 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 
 	entraGroup := tilgangsportalapi.EntraGroup{
 		DisplayName:      data.DisplayName.ValueString(),
-		Alias:            data.Alias.ValueString(),
 		Description:      data.Description.ValueString(),
 		InheritanceLevel: data.InheritanceLevel.ValueString(),
 	}

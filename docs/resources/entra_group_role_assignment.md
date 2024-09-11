@@ -15,7 +15,6 @@ This resource is used to create assignments between Entra Groups and System Role
 ```terraform
 resource "tilgangsportalen_entra_group" "example" {
   name              = "group 1"
-  alias             = "group_1"
   description       = "Demo of Terraform created Microsoft Entra ID group"
   inheritance_level = "User" # or "Group"
 }
