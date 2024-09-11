@@ -122,6 +122,7 @@ func (p *TilgangsportalenProvider) DataSources(ctx context.Context) []func() dat
 		NewSystemRolesDataSource,
 		NewEntraGroupsDataSource,
 		NewEntraGroupsForRoleDataSource,
+		NewSystemRoleDataSource,
 	}
 }
 
