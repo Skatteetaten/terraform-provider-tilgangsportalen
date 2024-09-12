@@ -30,6 +30,7 @@ resource "tilgangsportalen_entra_group" "example" {
 
 ### Optional
 
+- `alias` (String, Deprecated) Alias for the Entra Group. Deprecated and not used in the api or returned.
 - `description` (String) A description of the Entra Group
 
 ### Read-Only

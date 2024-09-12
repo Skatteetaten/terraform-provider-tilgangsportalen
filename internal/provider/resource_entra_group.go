@@ -35,6 +35,7 @@ type NewEntraGroupResource struct {
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
 	DisplayName      types.String `tfsdk:"name"`
+	Alias            types.String `tfsdk:"alias"`
 	Description      types.String `tfsdk:"description"`
 	InheritanceLevel types.String `tfsdk:"inheritance_level"`
 }
@@ -69,6 +70,11 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 					),
 					stringvalidator.LengthAtMost(256),
 				},
+			},
+			"alias": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "Alias for the Entra Group. Deprecated and no longer in use.",
+				DeprecationMessage:  "Alias is deprecated and not used in the API. Field will be removed in a future release.",
 			},
 			"description": schema.StringAttribute{
 				Optional:            true,

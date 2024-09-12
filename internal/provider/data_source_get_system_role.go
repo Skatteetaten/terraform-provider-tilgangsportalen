@@ -74,7 +74,7 @@ func (d *SystemRoleDataSource) Schema(ctx context.Context, req datasource.Schema
 }
 
 // Configure adds the provider configured client to the resource.
-func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest) {
+func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
