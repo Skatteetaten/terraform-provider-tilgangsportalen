@@ -4,11 +4,11 @@
 
 DEPRECATIONS:
 
-- `tilgangsportalen_system_role` - `alias` has been deprecated and the field will be removed in a future release. The field can be safely removed.
+- resource `tilgangsportalen_entra_group` - `alias` has been deprecated and the field will be removed in a future release. The field can be safely removed.
 
 ENHANCEMENTS:
 
-- `tilgangsportalen_system_role` - allows DisplayName up to 256 characters.
+- resource `tilgangsportalen_entra_group` - allows DisplayName up to 256 characters.
 - New data source `tilgangsportalen_system_role` that gets all details from API.
   NB. The API does not currently seem to return a value for `it_shop_name`
 
