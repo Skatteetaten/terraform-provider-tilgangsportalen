@@ -38,7 +38,6 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 
 				resource "tilgangsportalen_entra_group" "test_role_assignment_data_source" {
 					name = "%s"
-					alias = "group_to_be_assigned_to_role_test"
 					description = "terraform provider acceptance test"
 					inheritance_level = "User"
 				}

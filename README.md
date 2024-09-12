@@ -35,7 +35,7 @@ terraform {
   required_providers {
     tilgangsportalen = {
       source  = "Skatteetaten/tilgangsportalen"
-      version = "~>0.1"
+      version = "~>0.5"
     }
   }
 }

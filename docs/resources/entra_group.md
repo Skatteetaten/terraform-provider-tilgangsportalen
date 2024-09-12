@@ -15,7 +15,6 @@ This resource is used to create a new Entra Group using Tilgangsportalen
 ```terraform
 resource "tilgangsportalen_entra_group" "example" {
   name              = "[Ex] group 1"
-  alias             = "group_1"
   description       = "Demo of Terraform created Microsoft Entra ID group"
   inheritance_level = "User" # or "Admin"
 }
@@ -26,12 +25,12 @@ resource "tilgangsportalen_entra_group" "example" {
 
 ### Required
 
-- `alias` (String) The alias of the Entra Group. Must be unique.
 - `inheritance_level` (String) The inheritance level of the Entra Group (User or Admin). Determines what type of AD account the group can be assigned to.
 - `name` (String) The display name of the Entra Group. Must be unique. Please follow the standardized naming conventions for Entra ID groups.
 
 ### Optional
 
+- `alias` (String, Deprecated) Alias for the Entra Group. Deprecated and not used in the api or returned.
 - `description` (String) A description of the Entra Group
 
 ### Read-Only

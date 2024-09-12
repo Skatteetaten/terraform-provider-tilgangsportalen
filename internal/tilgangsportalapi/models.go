@@ -5,7 +5,6 @@ package tilgangsportalapi
 // EntraGroup represents the API body for creating an Entra group
 type EntraGroup struct {
 	DisplayName      string `json:"DisplayName"`
-	Alias            string `json:"Alias"`
 	Tenant           string `json:"Tenant"`
 	InheritanceLevel string `json:"InheritanceLevel"`
 	Description      string `json:"Description"`
@@ -55,7 +54,6 @@ type SystemRole struct {
 	ProductCategory string `json:"ProductCategory"`
 	ItShopName      string `json:"ITShopName"`
 }
-
 
 // PublishSystemRole represents the API body used when publishing a role
 // with Name to the IT shop given
