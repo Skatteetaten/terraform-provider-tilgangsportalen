@@ -30,9 +30,26 @@ resource "tilgangsportalen_entra_group" "example" {
 
 ### Optional
 
-- `alias` (String, Deprecated) Alias for the Entra Group. Deprecated and not used in the api or returned.
+- `alias` (String, Deprecated) Alias for the Entra Group. Deprecated and no longer in use.
 - `description` (String) A description of the Entra Group
 
 ### Read-Only
 
 - `id` (String) Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import tilgangsportalen_entra_group.example "[Ex] group 1"
+```
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the resource. For example:
+
+```terraform
+import {
+  id = "[Ex] group 1"
+  to = tilgangsportalen_entra_group.example
+}
+```
