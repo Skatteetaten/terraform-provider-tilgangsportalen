@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+
+ENHANCEMENTS:
+
+- Added documentation for resource import
+
 ## 0.5.0
 
 DEPRECATIONS:
