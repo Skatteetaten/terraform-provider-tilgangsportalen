@@ -44,6 +44,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 				resource "tilgangsportalen_entra_group_role_assignment" "test_role_group_assignment" {
 					role_name = tilgangsportalen_system_role.test_role_group_assignment.name
 					entra_group = tilgangsportalen_entra_group.test_role_group_assignment.name
+					force = true
 				}
 				`, roleName, testUser, itShopName, groupName),
 				Check: resource.ComposeTestCheckFunc(
@@ -51,13 +52,11 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group_role_assignment.test_role_group_assignment", "entra_group", groupName),
 				),
 			},
-			// test import to state using ImportStateCheckFunc
 			{
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group_role_assignment.test_role_group_assignment",
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"description", "inheritance_level"},
-			},
+				ImportStateVerifyIgnore: []string{"force"}},
 		},
 	})
 }

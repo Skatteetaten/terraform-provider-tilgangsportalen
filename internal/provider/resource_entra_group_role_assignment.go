@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -33,6 +34,7 @@ type EntraGroupRoleAssignmentModel struct {
 	ID         types.String `tfsdk:"id"`
 	RoleName   types.String `tfsdk:"role_name"`
 	EntraGroup types.String `tfsdk:"entra_group"`
+	Force      types.Bool   `tfsdk:"force"`
 }
 
 // Metadata returns the resource type name.
@@ -69,6 +71,12 @@ func (r *NewEntraGroupRoleAssignmentResource) Schema(ctx context.Context, req re
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"force": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Force the assignment even if it already exists",
+			},
 		},
 	}
 }
@@ -97,8 +105,6 @@ func (r *NewEntraGroupRoleAssignmentResource) Configure(ctx context.Context, req
 // Create a new role assignment resource
 func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data EntraGroupRoleAssignmentModel
-
-	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
@@ -109,12 +115,29 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		RoleName:   data.RoleName.ValueString(),
 		EntraGroup: data.EntraGroup.ValueString(),
 	}
-
 	_, err := r.client.AssignEntraGroupToRole(roleAssignment)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Entra Group %s assignment to system Role %s, got error: %s", data.EntraGroup, data.RoleName, err))
-		return
+		// if the group is already assigned to the role, import it in stead
+		assigned, err := r.client.CheckIfGroupIsAssignedToRole(data.EntraGroup.ValueString(), data.RoleName.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign or check if Entra Group %s is assigned to Role %s, got error: %s", data.EntraGroup.ValueString(), data.RoleName.ValueString(), err))
+			return
+		}
+		// if assigned and schema force is equal to true, import state
+		if assigned && data.Force.ValueBool() {
+			// write output to terraform output
+			tflog.Info(ctx, fmt.Sprintf("Group %s is already assigned to role %s, importing state as 'Force' flag is set to true", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
+			data.ID = types.StringValue(fmt.Sprintf("%s|%s", data.RoleName.ValueString(), data.EntraGroup.ValueString()))
+			resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+			return
+		} else if assigned {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Entra Group %s is already assigned to Role %s, use flag 'force' = true to automatically import resource on assignment.", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
+			return
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign Entra Group %s to Role %s, got error: %s", data.EntraGroup, data.RoleName, err))
+			return
+		}
 	}
 
 	// Setting role ID to be equal the new role name combining RoleName and GroupName with a pipe
@@ -169,8 +192,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// Update - We have no update API method for role assignments. All changes will
-// require replacement.
+// No resource api method for update - however if force flag is changed this will update state without calling the API
 func (r *NewEntraGroupRoleAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data EntraGroupRoleAssignmentModel
 
@@ -180,6 +202,10 @@ func (r *NewEntraGroupRoleAssignmentResource) Update(ctx context.Context, req re
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Save updated data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
 }
 
 // Delete a role assignment resource
@@ -209,6 +235,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Delete(ctx context.Context, req re
 
 // ImportState imports a role assignment to state
 func (r *NewEntraGroupRoleAssignmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
 	idParts := strings.Split(req.ID, "|")
 
 	tflog.Debug(ctx, fmt.Sprintf("Importing Entra Group Role Assignment with ID %s to state", req.ID))

@@ -5,6 +5,7 @@
 ENHANCEMENTS:
 
 - Added documentation for resource import
+- Added optional `force` attribute in `tilgangsportalen_entra_group_role_assignment` to allow/force creation if assignment already exists.
 
 ## 0.5.0
 

@@ -43,6 +43,10 @@ resource "tilgangsportalen_entra_group_role_assignment" "example" {
 - `entra_group` (String) The name of the Entra Group to assign to the Role
 - `role_name` (String) The name of the Role to assign the Entra Group to
 
+### Optional
+
+- `force` (Boolean) Force the assignment even if it already exists
+
 ### Read-Only
 
 - `id` (String) Identifier for the Entra Group System Role assignment. Currently, as we do not get a unique ID we can use from the API, ID is set by combining the role name and the Entra group name, with a pipe symbol as separator: RoleName|EntraGroupName
