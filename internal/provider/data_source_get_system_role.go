@@ -77,6 +77,7 @@ func (d *SystemRoleDataSource) Schema(ctx context.Context, req datasource.Schema
 func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
+		resp.Diagnostics.AddError("Configuration Error", "ProviderData is nil")
 		return
 	}
 

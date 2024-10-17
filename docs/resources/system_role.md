@@ -50,3 +50,20 @@ resource "tilgangsportalen_system_role" "example_2" {
 ### Read-Only
 
 - `id` (String) Identifier for the System Role. Currently, as we do not get a unique ID we can use from the API, ID is set equal to Name
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import tilgangsportalen_system_role.example "Published role name"
+```
+
+In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashicorp.com/terraform/language/import) to import the resource. For example:
+
+```terraform
+import {
+  id = "Published role name"
+  to = tilgangsportalen_system_role.example
+}
+```
