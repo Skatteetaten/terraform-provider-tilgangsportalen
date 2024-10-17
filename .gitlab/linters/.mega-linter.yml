@@ -31,6 +31,8 @@ MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdown-lint.yml
 MARKDOWN_MARKDOWNLINT_DISABLE_ERRORS: false
 TERRAFORM_TERRAFORM_FMT_DISABLE_ERRORS: false
 
+BASH_SHELLCHECK_FILTER_REGEX_EXCLUDE: "examples/resources/.*/import.sh" # These files are meant for documentation purposes, and are not meant to be executable
+
 ## Errors are set to disabled for the following linters:
 ## Enable this by setting the value to false.
 
