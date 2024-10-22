@@ -24,9 +24,9 @@ provider "tilgangsportalen" {
 
 The following configuration attributes can be passed via environment variables:
 
-|   Argument | Environment variable        |
-| ---------: | --------------------------- |
-|  `hosturl` | `TILGANGSPORTALEN_URL`      |
+| Argument   | Environment variable        |
+|------------|-----------------------------|
+| `hosturl`  | `TILGANGSPORTALEN_URL`      |
 | `username` | `TILGANGSPORTALEN_USERNAME` |
 | `password` | `TILGANGSPORTALEN_PASSWORD` |
 

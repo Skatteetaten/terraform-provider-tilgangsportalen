@@ -2,10 +2,7 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
-
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -75,20 +72,9 @@ func (d *SystemRoleDataSource) Schema(ctx context.Context, req datasource.Schema
 
 // Configure adds the provider configured client to the resource.
 func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		resp.Diagnostics.AddError("Configuration Error", "ProviderData is nil")
-		return
-	}
-
-	client, ok := req.ProviderData.(*tilgangsportalapi.Client)
-	if !ok {
-		formattedError := fmt.Sprintf("invalid client type: %T", req.ProviderData)
-		tflog.Error(ctx, formattedError)
-		return
-	}
-
-	d.client = client
+	ConfigureClientDataSource(ctx, req, resp, func(client *tilgangsportalapi.Client) {
+		d.client = client
+	})
 }
 
 // Read the resource data.

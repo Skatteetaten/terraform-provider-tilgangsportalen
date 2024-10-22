@@ -52,9 +52,9 @@ provider "tilgangsportalen" {
 
 Følgende konfigurasjonsattributter kan settes via miljøvariabler:
 
-|   Argument | Miljøvariabel               |
-| ---------: | --------------------------- |
-|  `hosturl` | `TILGANGSPORTALEN_URL`      |
+| Argument   | Miljøvariabel               |
+|------------|-----------------------------|
+| `hosturl`  | `TILGANGSPORTALEN_URL`      |
 | `username` | `TILGANGSPORTALEN_USERNAME` |
 | `password` | `TILGANGSPORTALEN_PASSWORD` |
 
