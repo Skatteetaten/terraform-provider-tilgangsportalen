@@ -10,3 +10,7 @@
 # data "tilgangsportalen_entra_groups_assigned_to_role" "name" {
 #   role_name = tilgangsportalen_system_role.test_role.name
 # }
+
+# data "tilgangsportalen_entra_group" "group" {
+#     name = tilgangsportalen_entra_group.example.name
+# }

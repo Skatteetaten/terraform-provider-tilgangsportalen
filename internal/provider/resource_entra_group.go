@@ -103,21 +103,9 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 
 // Configure adds the provider configured client to the resource.
 func (r *NewEntraGroupResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
-	}
-
-	client, ok := req.ProviderData.(*tilgangsportalapi.Client)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *tilgangsportalapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-		return
-	}
-	r.client = client
+	ConfigureClientResource(ctx, req, resp, func(client *tilgangsportalapi.Client) {
+		r.client = client
+	})
 }
 
 // Create is used to create an Entra group resource
@@ -170,9 +158,28 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
+	// Remove from state if group doesn't exists
 	if !groupExists {
 		resp.State.RemoveResource(ctx)
 		return
+	}
+
+	// If group exists, we get the group and update state
+	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
+	}
+
+	// Map to EntraGroupModel and save updated data into Terraform state
+	data.DisplayName = types.StringValue(entraGroup.DisplayName)
+	data.InheritanceLevel = types.StringValue(entraGroup.InheritanceLevel)
+
+	// If no description is set, GetEntraGroup returns an empty string.
+	// We only want the plan to show change if description has actually changed
+	if entraGroup.Description == "" && data.Description != types.StringValue("") {
+		data.Description = types.StringNull()
+	} else {
+		data.Description = types.StringValue(entraGroup.Description)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -208,7 +215,6 @@ func (r *NewEntraGroupResource) Update(ctx context.Context, req resource.UpdateR
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to rename Entra Group %s to %s, got error: %s", nameState, namePlan, err))
 			return
 		}
-
 	}
 
 	// Save updated data into Terraform state
@@ -243,12 +249,20 @@ func (r *NewEntraGroupResource) ImportState(ctx context.Context, req resource.Im
 
 	tflog.Debug(ctx, fmt.Sprintf("Importing Entra Group with ID %s", req.ID))
 
-	data := EntraGroupModel{
-		Id:          types.StringValue(req.ID),
-		DisplayName: types.StringValue(req.ID),
+	// Call the API to fetch group with name, if it exists
+	response, err := r.client.GetEntraGroup(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import Entra Group %s, got error: %s", req.ID, err))
+		return
 	}
 
-	// TODO: Get other fields for entra group and add to Terraform state when we have a read group API method
+	group := EntraGroupModel{
+		Id:               types.StringValue(response.DisplayName),
+		DisplayName:      types.StringValue(response.DisplayName),
+		InheritanceLevel: types.StringValue(response.InheritanceLevel),
+		Description:      types.StringValue(response.Description),
+	}
+
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &group)...)
 }

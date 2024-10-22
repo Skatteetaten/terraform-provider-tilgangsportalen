@@ -124,23 +124,9 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 
 // Configure adds the provider configured client to the resource.
 func (r *NewSystemRoleResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
-	}
-
-	client, ok := req.ProviderData.(*tilgangsportalapi.Client)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *tilgangsportalapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = client
+	ConfigureClientResource(ctx, req, resp, func(client *tilgangsportalapi.Client) {
+		r.client = client
+	})
 }
 
 // Create a new system role resource

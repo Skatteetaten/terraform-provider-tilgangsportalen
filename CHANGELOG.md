@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0
+
+ENHANCEMENTS:
+
+- New data source `tilgangsportalen_entra_group` that gets all details from API.
+- Fixed import of `tilgangsportalen_entra_group` to include the fields `description` and `inheritance_level`.
+- Fixed read of `tilgangsportalen_entra_group` to include the fields `description` and `inheritance_level`.
+
 ## 0.6.0
 
 ENHANCEMENTS:

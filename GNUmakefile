@@ -58,6 +58,14 @@ run-tests: check-env
 	TF_ACC=1 go test ./... $(TESTARGS) -cover -coverprofile=c.out -timeout 120m
 	go tool cover -html=c.out -o coverage.html
 
+# Run a specific test
+run-test: check-env
+	@if [ -z "$(test)" ]; then \
+		echo "Test name is required. Usage: make run-test test=<test-name>"; \
+		exit 1; \
+	fi
+	TF_ACC=1 go test ./... -count=1 -run='^$(test)$$' -v
+
 # Clean build artifacts
 clean:
 	cd $(PROVIDER_DIR) && go clean
