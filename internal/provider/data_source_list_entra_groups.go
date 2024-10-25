@@ -65,23 +65,9 @@ func (d *EntraGroupsDataSource) Schema(ctx context.Context, req datasource.Schem
 
 // Configure adds the provider configured client to the resource.
 func (d *EntraGroupsDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
-	if req.ProviderData == nil {
-		return
-	}
-
-	client, ok := req.ProviderData.(*tilgangsportalapi.Client)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configure Type",
-			fmt.Sprintf("Expected *tilgangsportalapi.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	d.client = client
+	ConfigureClientDataSource(ctx, req, resp, func(client *tilgangsportalapi.Client) {
+		d.client = client
+	})
 }
 
 // Read calls the API to get the latest data for the resource

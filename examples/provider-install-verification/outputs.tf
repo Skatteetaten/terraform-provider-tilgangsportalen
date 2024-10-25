@@ -22,3 +22,8 @@
 #   value       = tilgangsportalen_system_role.test_role.name
 #   description = "Skriver ut navnet på den opprettede gruppen"
 # }
+
+# output "data_entra_group" {
+#   value = data.tilgangsportalen_entra_group.group
+#   description = "Skriver ut informasjonen om den oppgitte gruppen"
+# }
