@@ -8,7 +8,6 @@ include:
 workflow:
   rules:
     - if: $CI_MERGE_REQUEST_ID
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "release"
 
@@ -16,14 +15,11 @@ workflow:
   rules:
     - if: $CI_COMMIT_REF_NAME == "release"
       when: never
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: on_success
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-      when: never
     - when: on_success
 
 stages:
   - test
+  - release
 
 variables:
   IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0.4.0@sha256:3e817e941cb9d585c489b3739a1f37456df1d4556c82fc725c58020ea4517244"
@@ -33,6 +29,8 @@ variables:
 megalinter-terraform-projects:
   extends: .megalinter-go
   allow_failure: true
+  rules:
+    - !reference [.feature-branch, rules]
 
 go package code examination:
   image: ${IMAGE_GO}
@@ -55,48 +53,32 @@ go security scanning:
   tags:
     - intern
 
-unit tests:
+# Run integration tests for Terraform provider on merge requests (into main and into release)
+
+integration tests:
   image: ${IMAGE_GO}
   stage: test
   script:
-    - echo "Prepare Go unit tests for provider"
+    - echo "Prepare Go integration tests for provider"
+    - TF_ACC=1 go test -cover -timeout=30m -v ./...
   environment:
     name: dev
     action: verify
     deployment_tier: development
   rules:
-    - !reference [.feature-branch, rules]
+    - if: $CI_COMMIT_REF_NAME == "release"
+      when: never
+    - when: manual
   tags:
     - intern
 
-# Main branch stages
-
-acceptance tests:
-  image: ${IMAGE_GO}
-  stage: test
-  variables:
-    RUNNER_SCRIPT_TIMEOUT: 20min
-  script:
-    - echo "Prepare Go acceptance tests for provider"
-    - TF_ACC=1 go test -cover -timeout=20m -v ./...
-  environment:
-    name: test
-    action: verify
-    deployment_tier: testing
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: on_success
-    - when: never
-  tags:
-    - intern
-
-# Release branch
+# Release branch NB: This does nothing yet. Should add tag later.
 
 github release:
   image: ${IMAGE_GO}
-  stage: test
+  stage: release
   script:
-    - echo "Sync with GitHub"
+    - echo "Sync with GitHub - remember to add tag"
   environment:
     name: prod
     action: verify
