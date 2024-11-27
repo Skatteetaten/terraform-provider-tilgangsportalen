@@ -54,7 +54,6 @@ go security scanning:
     - intern
 
 # Run integration tests for Terraform provider on merge requests (into main and into release)
-
 integration tests:
   image: ${IMAGE_GO}
   stage: test
@@ -73,7 +72,6 @@ integration tests:
     - intern
 
 # Release branch NB: This does nothing yet. Should add tag later.
-
 github release:
   image: ${IMAGE_GO}
   stage: release

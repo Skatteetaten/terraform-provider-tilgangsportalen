@@ -170,15 +170,16 @@ definert. Ressursene opprettes i test.
 ### Kjør tester
 
 Det er lagt inn en rekke akseptansetester for provideren. Disse kjører mot
-Tilgangsportalen sitt API i test. For å kjøre testene trenger du å legge inne en
-test-bruker-ident. Denne må være en gyldig brukerident i Tilgangsportalen. Du
-kan f.eks. sette den via `nano ~/.zshrc` som for de andre variablene:
+Tilgangsportalen sitt API i test. For å kjøre testene trenger du å legge inne to
+testbruker-identer. Disse **må** være gyldige brukeridenter i Tilgangsportalen. Du
+kan f.eks. sette de via `nano ~/.zshrc` som for de andre variablene (bytt ut med en gyldig ident, f.eks. din egen):
 
 ```shell
 export ACC_TEST_SYSTEM_ROLE_OWNER='a00000'
+export ACC_TEST_SYSTEM_ROLE_SECURITY_OWNER='b00000'
 ```
 
-For at testene skal kjøre på TF_ACC være satt til en verdi. Dette kan du gjøre
+For at testene skal kjøre må TF_ACC være satt til en verdi. Denne kan du sette
 når du vil kjøre tester. Naviger til mappen testene er i (de slutter på
 `_test.go`) og kjør `TF_ACC=1 go test -count=1 -run='NavnPåTest' -v` for å kjøre
 en spesifikk test, eller `TF_ACC=1 go test -count=1 -v` for å kjøre alle. Dersom
