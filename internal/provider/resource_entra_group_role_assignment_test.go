@@ -19,6 +19,7 @@ func TestCreateNewEntraGroupRoleAssignment(t *testing.T) {
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	groupName := fmt.Sprintf("[Group] TestCreateNewEntraGroupRoleAssignment %d", time)
 	itShopName := "General access shop shelf"
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 

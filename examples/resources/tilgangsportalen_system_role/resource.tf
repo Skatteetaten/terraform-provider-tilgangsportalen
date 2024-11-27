@@ -14,3 +14,12 @@ resource "tilgangsportalen_system_role" "example_2" {
   approval_level    = "L2"     # approval level of the system role
   description       = "Role for giving access to xyz."
 }
+
+resource "tilgangsportalen_system_role" "example_3" {
+  name                       = "Published role name"
+  product_category           = "TBD"    # product category of the system role. Must match an avaialable category
+  system_role_owner          = "a00000" # identity of the user who is the owner of the system role
+  system_role_security_owner = "b00000" # identity of the user who is the security owner of the role
+  approval_level             = "L3"     # approval level of the system role
+  description                = "Role for giving access to xyz."
+}
