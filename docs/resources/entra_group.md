@@ -8,7 +8,7 @@ description: |-
 
 # tilgangsportalen_entra_group (Resource)
 
-This resource is used to create a new Entra Group using Tilgangsportalen
+This resource is used to create a new Entra Group using Tilgangsportalen 
 
 ## Example Usage
 
@@ -36,6 +36,33 @@ resource "tilgangsportalen_entra_group" "example" {
 ### Read-Only
 
 - `id` (String) Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName
+
+## Entra ID integration module
+A module has been created to simplify the usage of `tilgangsportalen_entra_group` resource together with Entra ID 
+in order to efficiently use the Entra group together with other resources.
+
+-> **Asyncronous api**  Because the Tilgangsportalen api is asynchronous, there will be a delay from when the Terraform 
+resource is created (immediate) and when the corresponding group fully synchronized and available in Entra ID. 
+This delay usually lasts a few minutes.
+
+Example module usage:
+
+```terraform
+module "entra_group_1" {
+  source  = "gitlab.skead.no/terraform-modules/tilgangsportalen-entra-group/local"
+  version = "0.1.0"
+
+  name              = "[Ex] group 1"
+  description       = "Demo of Terraform created Microsoft Entra ID group"
+  inheritance_level = "User" # or "Admin"
+} 
+
+locals {
+  object_id = module.entra_group_1.object_id
+}
+``` 
+
+Terraform Entra Group Module documentation [can be found here](https://gitlab.skead.no/terraform-modules/dataplattform/tilgangsportalen-entra-group).
 
 ## Import
 
