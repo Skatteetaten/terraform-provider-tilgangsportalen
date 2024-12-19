@@ -12,7 +12,7 @@ func (client *Client) PublishSystemRole(role SystemRole) (*http.Response, error)
 
 	if role.ItShopName == "" {
 		role.ItShopName = "General access shop shelf"
-	}	
+	}
 
 	publishRole := PublishSystemRole{
 		Name:   role.Name,

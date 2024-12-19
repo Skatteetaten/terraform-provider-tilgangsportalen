@@ -10,7 +10,7 @@ GOBIN := $(GO_BIN_DIR)
 .PHONY: all build install update-deps run-tests generate-docs debug-client tfplugindocs check-deps clean
 
 # Default target
-all: update-deps build install generate-docs
+all: update-deps build install generate-docs go-vet
 
 # Check for required dependencies
 check-deps:
@@ -38,6 +38,10 @@ tfplugindocs:
 generate-docs: tfplugindocs
 	$(GOBIN)/tfplugindocs generate --rendered-provider-name Tilgangsportalen
 
+# Vet examines Go source code and reports suspicious constructs
+go-vet:
+	go vet ./...
+
 # Check required environment variables
 check-env:
 	@if [ -z "$$ACC_TEST_SYSTEM_ROLE_OWNER" ]; then \
@@ -54,7 +58,7 @@ check-env:
 	fi
 
 # Run tests
-run-tests: check-env
+run-tests: check-env go-vet
 	TF_ACC=1 go test ./... $(TESTARGS) -cover -coverprofile=c.out -timeout 120m
 	go tool cover -html=c.out -o coverage.html
 
