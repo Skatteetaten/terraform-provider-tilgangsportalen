@@ -3,12 +3,12 @@
 page_title: "tilgangsportalen_entra_group_role_assignment Resource - tilgangsportalen"
 subcategory: ""
 description: |-
-  This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen
+  This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen. If a referenced Role or Group does not exist for a resource in state, the assignment will be removed from state.
 ---
 
 # tilgangsportalen_entra_group_role_assignment (Resource)
 
-This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen
+This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen. If a referenced Role or Group does not exist for a resource in state, the assignment will be removed from state.
 
 ## Example Usage
 
