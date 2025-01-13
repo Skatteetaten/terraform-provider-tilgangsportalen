@@ -46,7 +46,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Metadata(ctx context.Context, req 
 func (r *NewEntraGroupRoleAssignmentResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen",
+		MarkdownDescription: "This resource is used to create assignments between Entra Groups and System Roles in Tilgangsportalen. If a referenced Role or Group does not exist for a resource in state, the assignment will be removed from state.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -144,6 +144,19 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// check if System Role in state (still) exists - if not remove assignment from state
+	roleExists, err := r.client.CheckIfRoleExists(data.RoleName.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Role %s exists, got error: %s", data.RoleName, err))
+		return
+	}
+
+	if !roleExists {
+		tflog.Debug(ctx, fmt.Sprintf("Role %s does not exist, removing assignment from state", data.RoleName.ValueString()))
+		resp.State.RemoveResource(ctx)
 		return
 	}
 

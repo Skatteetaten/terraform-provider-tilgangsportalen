@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1
+
+ENHANCEMENTS:
+
+- Fix read of `tilgangsportalen_entra_group_role_assignment` to handle renamed/missing system roles and remove resource from state in stead of throwing error.
+
 ## 0.7.0
 
 ENHANCEMENTS:
