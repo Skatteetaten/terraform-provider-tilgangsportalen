@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// UpdateSystemRole updates description, approval level, system role owner, 
+// UpdateSystemRole updates description, approval level, system role owner,
 // system role security owner, and/or product category for a specific (named)
 // system role. To update role name see separate method.
 // See https://wiki.sits.no/display/IDABAS/17.+Update+Role
