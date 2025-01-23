@@ -90,12 +90,23 @@ type DeleteSystemRole struct {
 
 ////       Role         ////
 
-// Role represents a single role with a DisplayName
+// Role represents a single role with a DisplayName returned by ListSystemRoles
 type Role struct {
 	DisplayName string `json:"DisplayName"`
 }
 
-// Roles represents the structure of the API response for ListRoles
+// Roles represents the structure of the API response for ListSystemRoles
 type Roles struct {
 	Roles []Role `json:"Roles"`
+}
+
+// RoleOwner represents a single role with DisplayName, L2Ident and L2DisplayName - returned by ListAllSystemRolesForEntraGroup
+type RoleWithOwner struct {
+	DisplayName   string `json:"DisplayName"`
+	L2Ident       string `json:"L2Ident"`
+	L2DisplayName string `json:"L2DisplayName"`
+}
+
+type RolesWithOwner struct {
+	Roles []RoleWithOwner `json:"Roles"`
 }

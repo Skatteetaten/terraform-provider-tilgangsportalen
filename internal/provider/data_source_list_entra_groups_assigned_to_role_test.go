@@ -16,7 +16,7 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 	// test failures
 	time := time.Now().Unix()
 	roleName := fmt.Sprintf("TestNewEntraGroupsForRoleDataSource Role %d", time)
-	groupName := fmt.Sprintf("[Test] group to be assigned to role %d", time)
+	groupName := fmt.Sprintf("[Test] group to be assigned to TestNewEntraGroupsForRoleDataSource %d", time)
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	itShopName := "General access shop shelf"
 

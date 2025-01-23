@@ -1,13 +1,13 @@
 # Makefile
 
 # Variables
-GO_BIN_DIR := $(PWD)/bin
+GO_BIN_DIR := $(HOME)/go/bin
 PROVIDER_DIR := $(PWD)/internal
 EXAMPLES_DIR := $(PWD)/examples/provider-install-verification
 GOBIN := $(GO_BIN_DIR)
 
 # Phony targets
-.PHONY: all build install update-deps run-tests generate-docs debug-client tfplugindocs check-deps clean
+.PHONY: all build install update-deps run-tests generate-docs tfplugindocs check-deps clean
 
 # Default target
 all: update-deps build install generate-docs go-vet
@@ -19,16 +19,15 @@ check-deps:
 
 # Build the provider
 build: check-deps
-	cd $(PROVIDER_DIR) && go build ./...
+	go build ./...
 
 # Install the provider
 install: check-deps
-	cd $(PROVIDER_DIR) && go install ./...
+	go install ./...
 
 # Update Go module dependencies
 update-deps:
-	cd $(PROVIDER_DIR) && go mod tidy
-	$(MAKE) install
+	go mod tidy
 
 # Install tfplugindocs tool
 tfplugindocs:
@@ -46,6 +45,9 @@ go-vet:
 check-env:
 	@if [ -z "$$ACC_TEST_SYSTEM_ROLE_OWNER" ]; then \
 		echo "Error: ACC_TEST_SYSTEM_ROLE_OWNER is not set."; exit 1; \
+	fi
+	@if [ -z "$$ACC_TEST_SYSTEM_ROLE_SECURITY_OWNER" ]; then \
+		echo "Error: ACC_TEST_SYSTEM_ROLE_SECURITY_OWNER is not set."; exit 1; \
 	fi
 	@if [ -z "$$TILGANGSPORTALEN_USERNAME" ]; then \
 		echo "Error: TILGANGSPORTALEN_USERNAME is not set."; exit 1; \
