@@ -115,6 +115,13 @@ go install all
 
 ```
 
+Det anbefales bruk av repoets make-fil under utvikling for å enkelt bygge provideren oppdatere avhengigheter og generere dokumentasjon. Eksempelvis:
+
+```shell
+make
+
+```
+
 ### Verifiser installasjonen
 
 Test av provideren kjøres mot Tilgangsportalens test-api. Vi må sette lokale
@@ -185,31 +192,13 @@ når du vil kjøre tester. Naviger til mappen testene er i (de slutter på
 en spesifikk test, eller `TF_ACC=1 go test -count=1 -v` for å kjøre alle. Dersom
 du vil sjekke coverage for testene, kan du kjøre `TF_ACC=1 go test -cover`.
 
-### Debug Tilgangsportalen main client
-
-Naviger til directory for filer (Naviger til
-terraform-provider-tilgangsportalen/internal/tilgangsportalapi) og kjør :
-
-```shell
-go build .
-go run .
-```
-
 ### Generere dokumentasjon
 
 Vi bruker [`terraform-plugin-docs`](https://github.com/hashicorp/terraform-plugin-docs)
-for å generere dokumentasjon. Slik installerer du det:
+for å generere dokumentasjon. Slik installerer du og kjører det:
 
 ```shell
-export GOBIN=$PWD/bin
-export PATH=$GOBIN:$PATH
-go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
-```
-
-Slik generer du dokumentasjon:
-
-```shell
-tfplugindocs generate --rendered-provider-name Tilgangsportalen
+make generate-docs
 ```
 
 Mer dokumentasjon ligger på GitHub: <https://github.com/hashicorp/terraform-plugin-docs>
