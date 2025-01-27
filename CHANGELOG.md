@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0
+
+ENHANCEMENTS:
+
+- Add new data resource `tilgangsportalen_system_roles_assigned_to_entra_group`
+
 ## 0.7.1
 
 ENHANCEMENTS:
