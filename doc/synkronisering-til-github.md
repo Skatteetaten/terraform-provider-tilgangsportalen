@@ -13,7 +13,7 @@ Push mirroring er satt opp til kun å pushe én branch, nemlig “release”. De
 konfigurert med regex. For å identifisere seg mot GitHub brukes et PAT-token
 laget for vår systembruker i GitHub, `skatteetaten-dataplattform-bot`. Det er
 laget et klassisk PAT med scope `repo` og `workflow`. Nåværende token løper ut
-**20. februar 2025**. Dersom man vil release en ny versjon etter dette, må
+**18. mai 2025**. Dersom man vil release en ny versjon etter dette, må
 PAT-tokenet rulleres. Vi får en epost til felles postkasse (dataplattform(at)skatteetaten.no)
 med en link for å regenerere tokenet ca en uke før utløp. Passord for innlogging
 til GitHub ligger i teamets key vault.
