@@ -129,7 +129,12 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 	}
 
 	// Closing the response body
-	defer resp.Body.Close()
+	defer func() {
+		cerr := resp.Body.Close()
+		if cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	return resp, bodyBytes, nil
 
