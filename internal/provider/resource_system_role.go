@@ -79,8 +79,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The owner of the role, identified by their user ident",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[a-z0-9]{6}$`),
-						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (lowercase letters and numbers only).",
+						regexp.MustCompile(`^[a-z0-9]+$`),
+						"Must be a valid user ident consisting of alphanumeric characters (lowercase letters and numbers only).",
 					),
 				},
 			},
@@ -89,8 +89,8 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 				MarkdownDescription: "The security owner of the role. Required if the approval level is L3",
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(
-						regexp.MustCompile(`^[a-z0-9]{6}$`),
-						"Must be a valid user ident consisting of exactly 6 alphanumeric characters (lowercase letters and numbers only).",
+						regexp.MustCompile(`^[a-z0-9]+$`),
+						"Must be a valid user ident consisting of alphanumeric characters (lowercase letters and numbers only).",
 					),
 				},
 			},
