@@ -1,5 +1,4 @@
+version: "2"
 run:
   timeout: 5m
-  dirs:
-    - ./internal/provider
-    - ./internal/tilgangsportalapi
+  relative-path-mode: gomod

@@ -1,7 +1,7 @@
 ---
 include:
   - project: "azure-tools/ci-templates/tools"
-    ref: "3.0.4"
+    ref: "3.8.1"
     file:
       - "Linter.gitlab-ci.yml"
 
@@ -22,7 +22,7 @@ stages:
   - release
 
 variables:
-  IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0.4.0@sha256:3e817e941cb9d585c489b3739a1f37456df1d4556c82fc725c58020ea4517244"
+  IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0.8@sha256:97be46dbf321d8f21a068aebcf5c7068bff00ac252c8145303ce2e034f3403f7"
 
 # Feature branch stages
 

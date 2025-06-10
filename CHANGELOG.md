@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.1
+
+FIXES:
+
+- `system_role_owner` and `system_role_security_owner` in `tilgangsportalen_system_role` accepts user idents of length 1 or more.
+
 ## 0.8.0
 
 ENHANCEMENTS:
