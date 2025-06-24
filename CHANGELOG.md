@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0
+
+ENHANCEMENTS:
+
+- Added 15 min timeout to `WaitForGroupRoleAssignmentStatus` to prevent infinite polling.
+
 ## 0.8.1
 
 FIXES:

@@ -1,6 +1,7 @@
 package tilgangsportalapi
 
 import (
+	"context"
 	"log"
 	"time"
 )
@@ -37,11 +38,15 @@ func (client *Client) WaitForGroupRoleAssignmentStatus(groupName string, roleNam
 		action = "removed"
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	defer cancel()
+
 	log.Printf("Waiting for group %s to be %s to role %s...", groupName, action, roleName)
 
 	for {
 		var err error
 		assignmentFound, err := client.CheckIfGroupIsAssignedToRole(groupName, roleName)
+
 		if err != nil {
 			return err
 		}
@@ -53,8 +58,13 @@ func (client *Client) WaitForGroupRoleAssignmentStatus(groupName string, roleNam
 			log.Printf("Group %s is no longer assigned to role %s", groupName, roleName)
 			break // Exit the loop if waiting for removal and it is removed
 		}
-		time.Sleep(5 * time.Second) // Wait before retrying
 
+		select {
+		case <-time.After(5 * time.Second): // Retry after 5 seconds
+		case <-ctx.Done():
+			log.Printf("Timeout reached while waiting for group %s to be %s to role %s", groupName, action, roleName)
+			return ctx.Err() // Return error if timeout is reached
+		}
 	}
 
 	return nil
