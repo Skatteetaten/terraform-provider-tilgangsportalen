@@ -1,5 +1,11 @@
 # Changelog
 
+## UNRELEASED
+
+FIXES:
+
+- Fixed error handling when getting group details in `tilgangsportalen_entra_group`.
+
 ## 0.9.0
 
 ENHANCEMENTS:
