@@ -168,6 +168,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
+		return
 	}
 
 	// Map to EntraGroupModel and save updated data into Terraform state
