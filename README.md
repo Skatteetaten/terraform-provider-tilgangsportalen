@@ -53,7 +53,7 @@ provider "tilgangsportalen" {
 Følgende konfigurasjonsattributter kan settes via miljøvariabler:
 
 | Argument   | Miljøvariabel               |
-|------------|-----------------------------|
+| ---------- | --------------------------- |
 | `hosturl`  | `TILGANGSPORTALEN_URL`      |
 | `username` | `TILGANGSPORTALEN_USERNAME` |
 | `password` | `TILGANGSPORTALEN_PASSWORD` |
@@ -191,6 +191,29 @@ når du vil kjøre tester. Naviger til mappen testene er i (de slutter på
 `_test.go`) og kjør `TF_ACC=1 go test -count=1 -run='NavnPåTest' -v` for å kjøre
 en spesifikk test, eller `TF_ACC=1 go test -count=1 -v` for å kjøre alle. Dersom
 du vil sjekke coverage for testene, kan du kjøre `TF_ACC=1 go test -cover`.
+
+#### VS Code
+
+Får å benytte seg av VS Codes [testgrensesnitt](https://code.visualstudio.com/docs/debugtest/testing?originUrl=%2Fdocs%2Fgetstarted%2Fextensions#_automatic-test-discovery-in-testing-view)
+bør man legge til følgende i `.vscode/settings.json`:
+
+```json
+{
+    "go.testEnvFile": "${workspaceFolder}/.env",
+    "go.testFlags": [
+        "-v",
+        "-cover",
+        "-timeout=30m"
+    ],
+    "go.testEnvVars": {
+        "TF_ACC": "1",
+        "ACC_TEST_SYSTEM_ROLE_OWNER": "<din bruker her>",
+    }
+}
+```
+
+Merk at denne krever at du har en `.env`-fil med miljøvariabelene som kreves
+av provideren. Se [Miljøvariabler](#miljøvariabler) for detaljer.
 
 ### Generere dokumentasjon
 
