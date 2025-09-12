@@ -113,6 +113,7 @@ func (p *TilgangsportalenProvider) Resources(ctx context.Context) []func() resou
 		CreateNewSystemRole,
 		CreateNewEntraGroup,
 		CreateNewEntraGroupRoleAssignment,
+		CreateNewTermsOfUseRoleAssignment,
 	}
 }
 
@@ -125,6 +126,7 @@ func (p *TilgangsportalenProvider) DataSources(ctx context.Context) []func() dat
 		NewSystemRoleDataSource,
 		NewEntraGroupDataSource,
 		NewListAllSystemRolesForEntraGroup,
+		NewTermsOfUseRoleAssignmentDataSource,
 	}
 }
 
