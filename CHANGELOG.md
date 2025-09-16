@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0
+
+ENHANCEMENTS:
+
+- Added resource `tilgangsportalen_terms_of_use_role_assignment`.
+- Added data source `tilgangsportalen_terms_of_use_role_assignment`.
+
+FIXES:
+
+- Fixed error handling when getting group details in `tilgangsportalen_entra_group`.
+
 ## 0.9.0
 
 ENHANCEMENTS:
