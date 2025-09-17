@@ -110,3 +110,23 @@ type RoleWithOwner struct {
 type RolesWithOwner struct {
 	Roles []RoleWithOwner `json:"Roles"`
 }
+
+////       Terms of use         ////
+
+// TermsOfUse represents the API body for creating a terms of use
+type TermsOfUse struct {
+	TermsOfUseIdentifier string `json:"TermsOfUseIdentifier"`
+	Description          string `json:"Description"`
+	TermsOfUseUID        string `json:"TermsOfUseUID"`
+}
+
+// TermsOfUseAssignment represents the API body for assigning terms of use to a role
+type TermsOfUseAssignment struct {
+	RoleName   string `json:"Name"`
+	TermsOfUse string `json:"TermsOfUse"`
+}
+
+// TermsOfUseRemoval represents the API body for removing terms of use from a role
+type TermsOfUseRemoval struct {
+	RoleName string `json:"Name"`
+}

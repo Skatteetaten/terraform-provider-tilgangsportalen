@@ -27,3 +27,8 @@
 #   value = data.tilgangsportalen_entra_group.group
 #   description = "Skriver ut informasjonen om den oppgitte gruppen"
 # }
+
+# output "terms_of_use_assignment" {
+#   value       = tilgangsportalen_terms_of_use_role_assignment.example
+#   description = "Skriver ut informasjonen om den oppgitte Terms of Use role assignment"
+# }
