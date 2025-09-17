@@ -4,7 +4,9 @@
 
 Oppdater [CHANGELOG.md](../changelog.md) med ny versjon og beskrivelse av endringene du har gjort.
 
-Lag MR til main branch, men **ikke** huk av *Squash commits when merge request is accepted*. Når endringene er merget til main lager du en MR mot release branch, her kan du huke av på å squashe commits.
+Lag MR til main branch, men **ikke** huk av *Squash commits when merge request is accepted*. Om man huker av for dette valget, så vil man få merge conflict ved neste merge til main branch.
+
+Når endringene er merget til main lager du en MR mot release branch, her kan du huke av på å squashe commits.
 
 Når endringene merges til release branch vil det trigge en [GitHub Actions workflow](https://github.com/Skatteetaten/terraform-provider-tilgangsportalen/blob/release/.github/workflows/release.yml) som synkroniserer endringene til GitHub, mer informasjon om hvordan denne prosessen fungerer kan du lese om [her](https://github.com/Skatteetaten/terraform-provider-tilgangsportalen/blob/release/doc/synkronisering-til-github.md).
 Når endringene er synkronisert til GitHub, må det opprettes en ny tag.
