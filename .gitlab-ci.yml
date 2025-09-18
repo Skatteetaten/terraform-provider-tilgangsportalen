@@ -22,7 +22,7 @@ stages:
   - release
 
 variables:
-  IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0.8@sha256:97be46dbf321d8f21a068aebcf5c7068bff00ac252c8145303ce2e034f3403f7"
+  IMAGE_GO: "gitlab-container-registry.skead.no/kjerneplattform-container-registry/core/go:0"
 
 # Feature branch stages
 

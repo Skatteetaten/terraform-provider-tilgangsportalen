@@ -1,5 +1,10 @@
 # Changelog
 
+## UNRELEASED
+
+INTERNAL:
+- Set pipeline to use latest minor version of current major version of go image
+
 ## 0.10.0
 
 ENHANCEMENTS:
