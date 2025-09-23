@@ -258,6 +258,82 @@ func TestTermsOfUseRoleAssignmentImportError(t *testing.T) {
 	})
 }
 
+func TestTermsOfUseRoleAssignmentAlreadyAssigned(t *testing.T) {
+	t.Parallel()
+
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	roleName := fmt.Sprintf("TestTermsOfUseRoleAssignmentAlreadyAssigned Role %d", time)
+	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
+	itShopName := "General access shop shelf"
+	termsOfUse := "Test TermsOfUse 2"
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+
+		Steps: []resource.TestStep{
+			// First assignment - should succeed
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_system_role" "test" {
+					name              = "%s"
+					product_category  = "TBD"
+					system_role_owner = "%s"
+					approval_level    = "L2"
+					description       = "Terraform acceptance test role for terms of use assignment."
+					it_shop_name      = "%s"
+				} 
+
+				resource "tilgangsportalen_terms_of_use_role_assignment" "test" {
+					role_name = tilgangsportalen_system_role.test.name
+					terms_of_use_identifier = "%s"
+				}
+				`, roleName, testUser, itShopName, termsOfUse),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test", "role_name", roleName),
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test", "terms_of_use_identifier", termsOfUse),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test", "id"),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test", "terms_of_use_description"),
+				),
+			},
+			// Assign the same terms of use with a new resource - should not fail even if already assigned
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_system_role" "test" {
+					name              = "%s"
+					product_category  = "TBD"
+					system_role_owner = "%s"
+					approval_level    = "L2"
+					description       = "Terraform acceptance test role for terms of use assignment."
+					it_shop_name      = "%s"
+				} 
+
+				resource "tilgangsportalen_terms_of_use_role_assignment" "test" {
+					role_name = tilgangsportalen_system_role.test.name
+					terms_of_use_identifier = "%s"
+				}
+
+				resource "tilgangsportalen_terms_of_use_role_assignment" "test_same" {
+					role_name = tilgangsportalen_system_role.test.name
+					terms_of_use_identifier = "%s"
+				}
+				`, roleName, testUser, itShopName, termsOfUse, termsOfUse),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test", "role_name", roleName),
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test", "terms_of_use_identifier", termsOfUse),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test", "id"),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test", "terms_of_use_description"),
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test_same", "role_name", roleName),
+					resource.TestCheckResourceAttr("tilgangsportalen_terms_of_use_role_assignment.test_same", "terms_of_use_identifier", termsOfUse),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test_same", "id"),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test_same", "terms_of_use_description"),
+				),
+			},
+		},
+	})
+}
+
 func TestTermsOfUseRoleAssignmentNonExistentRole(t *testing.T) {
 	t.Parallel()
 

@@ -1,8 +1,13 @@
 # Changelog
 
-## UNRELEASED
+## 0.10.1
+
+FIXES:
+
+- Fixed handling of an error when assigning a ToU to a role that already has that same ToU assigned. 
 
 INTERNAL:
+
 - Set pipeline to use latest minor version of current major version of go image
 
 ## 0.10.0
