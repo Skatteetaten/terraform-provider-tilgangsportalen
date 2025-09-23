@@ -194,7 +194,7 @@ du vil sjekke coverage for testene, kan du kjøre `TF_ACC=1 go test -cover`.
 
 #### VS Code
 
-Får å benytte seg av VS Codes [testgrensesnitt](https://code.visualstudio.com/docs/debugtest/testing?originUrl=%2Fdocs%2Fgetstarted%2Fextensions#_automatic-test-discovery-in-testing-view)
+For å benytte seg av VS Codes [testgrensesnitt](https://code.visualstudio.com/docs/debugtest/testing?originUrl=%2Fdocs%2Fgetstarted%2Fextensions#_automatic-test-discovery-in-testing-view)
 bør man legge til følgende i `.vscode/settings.json`:
 
 ```json
