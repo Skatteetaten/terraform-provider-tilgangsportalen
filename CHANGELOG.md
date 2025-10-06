@@ -4,7 +4,7 @@
 
 FIXES:
 
-- Fixed handling of an error when assigning a ToU to a role that already has that same ToU assigned. 
+- Fixed handling of an error when assigning a ToU to a role that already has that same ToU assigned.
 
 INTERNAL:
 
