@@ -8,6 +8,7 @@ type EntraGroup struct {
 	Tenant           string `json:"Tenant"`
 	InheritanceLevel string `json:"InheritanceLevel"`
 	Description      string `json:"Description"`
+	EntraIDOID       string `json:"EntraIDOID"`
 }
 
 // EntraGroups represents the structure of the API response from

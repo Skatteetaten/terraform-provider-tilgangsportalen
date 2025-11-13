@@ -36,6 +36,7 @@ resource "tilgangsportalen_entra_group" "example" {
 ### Read-Only
 
 - `id` (String) Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName
+- `object_id` (String) Object identifier for the Entra Group.
 
 ## Entra ID integration module
 A module has been created to simplify the usage of `tilgangsportalen_entra_group` resource together with Entra ID 

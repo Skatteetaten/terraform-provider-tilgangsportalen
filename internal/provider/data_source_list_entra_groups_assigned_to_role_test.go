@@ -16,7 +16,7 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 	// test failures
 	time := time.Now().Unix()
 	roleName := fmt.Sprintf("TestNewEntraGroupsForRoleDataSource Role %d", time)
-	groupName := fmt.Sprintf("[Test] group to be assigned to TestNewEntraGroupsForRoleDataSource %d", time)
+	groupName := fmt.Sprintf("[APPTEST] group to be assigned to TestNewEntraGroupsForRoleDataSource %d", time)
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
 	itShopName := "General access shop shelf"
 
@@ -34,11 +34,11 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
 
-				} 
+				}
 
 				resource "tilgangsportalen_entra_group" "test_role_assignment_data_source" {
 					name = "%s"
-					description = "terraform provider acceptance test"
+					description = "APPTEST"
 					inheritance_level = "User"
 				}
 
