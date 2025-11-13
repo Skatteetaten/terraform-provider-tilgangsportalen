@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -34,6 +35,7 @@ type NewEntraGroupResource struct {
 // EntraGroupModel is a mapping of the resource schema
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
+	EntraIDOID       types.String `tfsdk:"object_id"`
 	DisplayName      types.String `tfsdk:"name"`
 	Alias            types.String `tfsdk:"alias"`
 	Description      types.String `tfsdk:"description"`
@@ -56,6 +58,13 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 				Computed:            true,
 				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName",
 				// Plan modifier to import id from previous state to avoid "know after apply" message
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"object_id": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "Object identifier for the Entra Group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -134,6 +143,18 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	// Setting role ID to be equal the new role name
 	data.Id = data.DisplayName
 
+
+	// Check if we need to wait for the object_id to be set for this group
+	waitForObjectId := checkIfGroupWillBeCreatedInEntra(r.client, entraGroup.DisplayName, entraGroup.Description)
+
+	// Get EntraIDOID from the GetAzureADGroup API
+	entraGroupRead, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), waitForObjectId)
+	if err != nil {
+		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
+		return
+	}
+	data.EntraIDOID = types.StringValue(entraGroupRead.EntraIDOID)
+
 	tflog.Debug(ctx, fmt.Sprintf("Entra Group %s created", entraGroup.DisplayName))
 
 	// Save data into Terraform state
@@ -165,7 +186,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	// If group exists, we get the group and update state
-	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString())
+	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), false)
 	if err != nil {
 		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
 		return
@@ -174,6 +195,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	// Map to EntraGroupModel and save updated data into Terraform state
 	data.DisplayName = types.StringValue(entraGroup.DisplayName)
 	data.InheritanceLevel = types.StringValue(entraGroup.InheritanceLevel)
+	data.EntraIDOID = types.StringValue(entraGroup.EntraIDOID)
 
 	// If no description is set, GetEntraGroup returns an empty string.
 	// We only want the plan to show change if description has actually changed
@@ -247,11 +269,10 @@ func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteR
 
 // ImportState imports an Entra group to state
 func (r *NewEntraGroupResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-
 	tflog.Debug(ctx, fmt.Sprintf("Importing Entra Group with ID %s", req.ID))
 
 	// Call the API to fetch group with name, if it exists
-	response, err := r.client.GetEntraGroup(req.ID)
+	response, err := r.client.GetEntraGroup(req.ID, false)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import Entra Group %s, got error: %s", req.ID, err))
 		return
@@ -262,8 +283,31 @@ func (r *NewEntraGroupResource) ImportState(ctx context.Context, req resource.Im
 		DisplayName:      types.StringValue(response.DisplayName),
 		InheritanceLevel: types.StringValue(response.InheritanceLevel),
 		Description:      types.StringValue(response.Description),
+		EntraIDOID:       types.StringValue(response.EntraIDOID),
 	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &group)...)
+}
+
+// Checks if the resource is created in tilgangsportalen test
+func checkIfTestResource(client *tilgangsportalapi.Client) bool {
+	testApi := "https://tilgang-test.sits.no/ApiServer"
+
+	return client.GetBaseURL() == testApi
+}
+
+// Entra groups are only created in Entra via tilgangsportalen test if they meet certain requirements
+func checkIfGroupWillBeCreatedInEntra(client *tilgangsportalapi.Client, name string, description string) bool {
+	// assuming all groups created via tilgangsportalen prod to be created in Entra
+	if !checkIfTestResource(client) {
+		return true
+	}
+
+	// Name must start with "[APPTEST]" and description must be equal to "APPTEST" for entra group to be created in Entra via tilgangsportalen test
+	if strings.HasPrefix(name, "[APPTEST]") && description == "APPTEST" {
+		return true
+	}
+
+	return false
 }

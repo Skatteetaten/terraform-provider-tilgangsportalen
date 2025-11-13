@@ -18,8 +18,8 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 	roleName := fmt.Sprintf("TestEntraGroupRoleAssignment Role %d", time)
 	newRoleName := fmt.Sprintf("TestEntraGroupRoleAssignment New Name Role %d", time)
 	testUser := os.Getenv("ACC_TEST_SYSTEM_ROLE_OWNER")
-	groupName := fmt.Sprintf("[Group] TestEntraGroupRoleAssignment %d", time)
-	newGroupName := fmt.Sprintf("[Group] TestEntraGroupRoleAssignment New Name %d", time)
+	groupName := fmt.Sprintf("[APPTEST] TestEntraGroupRoleAssignment %d", time)
+	newGroupName := fmt.Sprintf("[APPTEST] TestEntraGroupRoleAssignment New Name %d", time)
 	itShopName := "General access shop shelf"
 
 	resource.Test(t, resource.TestCase{
@@ -36,11 +36,11 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
-				} 
+				}
 
 				resource "tilgangsportalen_entra_group" "test" {
 					name = "%s"
-					description = "terraform provider acceptance test"
+					description = "APPTEST"
 					inheritance_level = "User"
 				}
 
@@ -63,7 +63,7 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 			},
 			// Test rename system role while group is assigned
 			{
-				Config: providerConfig + fmt.Sprintf(`		  
+				Config: providerConfig + fmt.Sprintf(`
 				resource "tilgangsportalen_system_role" "test" {
 					name              = "%s"
 					product_category  = "TBD"
@@ -71,10 +71,10 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
-				} 
+				}
 				resource "tilgangsportalen_entra_group" "test" {
 					name = "%s"
-					description = "terraform provider acceptance test"
+					description = "APPTEST"
 					inheritance_level = "User"
 				}
 
@@ -91,7 +91,7 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 			},
 			// Test rename group while assigned to role
 			{
-				Config: providerConfig + fmt.Sprintf(`		  
+				Config: providerConfig + fmt.Sprintf(`
 				resource "tilgangsportalen_system_role" "test" {
 					name              = "%s"
 					product_category  = "TBD"
@@ -99,10 +99,10 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
-				} 
+				}
 				resource "tilgangsportalen_entra_group" "test" {
 					name = "%s"
-					description = "terraform provider acceptance test"
+					description = "APPTEST"
 					inheritance_level = "User"
 				}
 

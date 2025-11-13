@@ -160,3 +160,8 @@ func CreateRequestBody(bodyObject interface{}) (io.Reader, error) {
 	}
 	return bytes.NewBuffer(jsonBytes), nil
 }
+
+// GetBaseURL returns the base URL of the client.
+func (c *Client) GetBaseURL() string {
+    return c.baseURL
+}

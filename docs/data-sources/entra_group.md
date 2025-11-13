@@ -31,3 +31,4 @@ data "tilgangsportalen_entra_group" "example" {
 - `description` (String) The description of the Entra Group.
 - `id` (String) The ID of the Entra Group
 - `inheritance_level` (String) The inheritance level of the Entra Group.
+- `object_id` (String) The object ID of the Entra Group
