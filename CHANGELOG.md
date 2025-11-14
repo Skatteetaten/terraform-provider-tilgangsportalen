@@ -1,10 +1,17 @@
 # Changelog
 
+## 0.11.0
+
+ENHANCEMENTS:
+
+- Added return value `object_id` to resource `tilgangsportalen_entra_group`
+- Added return value `object_id` to data source `tilgangsportalen_entra_group`
+
 ## 0.10.1
 
 FIXES:
 
-- Fixed handling of an error when assigning a ToU to a role that already has that same ToU assigned. 
+- Fixed handling of an error when assigning a ToU to a role that already has that same ToU assigned.
 
 INTERNAL:
 

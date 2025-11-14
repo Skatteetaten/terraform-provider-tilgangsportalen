@@ -38,6 +38,10 @@ func (d *EntraGroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 				Description: "The ID of the Entra Group",
 				Computed:    true,
 			},
+			"object_id": schema.StringAttribute{
+				Description: "The object ID of the Entra Group",
+				Computed:    true,
+			},
 			"name": schema.StringAttribute{
 				Description: "The display name of the Entra Group.",
 				Required:    true,
@@ -76,11 +80,23 @@ func (d *EntraGroupDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	// Get the entra id group from the API
-	group, err := d.client.GetEntraGroup(data.DisplayName.ValueString())
+	// Get the entra id group from the API. Don´t wait for the object_id to be set, as we do not yet know if this group will be created in Entra
+	group, err := d.client.GetEntraGroup(data.DisplayName.ValueString(), false)
 	if err != nil {
 		resp.Diagnostics.AddError("failed to get Entra ID group", err.Error())
 		return
+	}
+
+	// Check if we need to wait for the object_id to be set for this group
+	waitForObjectId := checkIfGroupWillBeCreatedInEntra(d.client, group.DisplayName, group.Description)
+
+	// If we need to wait for the object_id to be set, wait for the value to be returned by the API
+	if waitForObjectId && group.EntraIDOID == "" {
+		group, err = d.client.GetEntraGroup(data.DisplayName.ValueString(), waitForObjectId)
+		if err != nil {
+			resp.Diagnostics.AddError("failed to get Entra ID group", err.Error())
+			return
+		}
 	}
 
 	// Set the resource data
@@ -88,6 +104,7 @@ func (d *EntraGroupDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	data.DisplayName = types.StringValue(group.DisplayName)
 	data.Description = types.StringValue(group.Description)
 	data.InheritanceLevel = types.StringValue(group.InheritanceLevel)
+	data.EntraIDOID = types.StringValue(group.EntraIDOID)
 
 	// Write the resource data
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
