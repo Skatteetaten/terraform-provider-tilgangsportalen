@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.11.1
+
+FIXES
+
+- Changed timeout value for Delete Role API call from 5 minutes to 15 minutes
+
 ## 0.11.0
 
 ENHANCEMENTS:
