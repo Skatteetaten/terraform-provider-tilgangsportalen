@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const defaultTimeout = 300
+
 // Client struct
 type Client struct {
 	baseURL     string
@@ -54,7 +56,7 @@ func NewClient(baseURL, apiUsername, apiPassword string) (*Client, error) {
 // GetRequest performs an HTTP get request
 func (c *Client) GetRequest(urlStr string) ([]byte, error) {
 	urlRequestStr := c.baseURL + urlStr
-	_, bodyBytes, err := BuildRequest("GET", urlRequestStr, nil, c.headers, c.cookies)
+	_, bodyBytes, err := BuildRequest("GET", urlRequestStr, nil, c.headers, c.cookies, defaultTimeout)
 
 	return bodyBytes, err
 }
@@ -62,7 +64,15 @@ func (c *Client) GetRequest(urlStr string) ([]byte, error) {
 // PostRequest performs an HTTP POST request
 func (c *Client) PostRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
 	urlRequestStr := c.baseURL + urlStr
-	response, _, err := BuildRequest("POST", urlRequestStr, requestBody, c.headers, c.cookies)
+	response, _, err := BuildRequest("POST", urlRequestStr, requestBody, c.headers, c.cookies, defaultTimeout)
+
+	return response, err
+}
+
+// PostRequest performs an HTTP POST request
+func (c *Client) PostRequestWithCustomTimeout(urlStr string, requestBody io.Reader, customTimeout int) (*http.Response, error) {
+	urlRequestStr := c.baseURL + urlStr
+	response, _, err := BuildRequest("POST", urlRequestStr, requestBody, c.headers, c.cookies, customTimeout)
 
 	return response, err
 }
@@ -70,15 +80,16 @@ func (c *Client) PostRequest(urlStr string, requestBody io.Reader) (*http.Respon
 // PutRequest performs an HTTP Put request
 func (c *Client) PutRequest(urlStr string, requestBody io.Reader) (*http.Response, error) {
 	urlRequestStr := c.baseURL + urlStr
-	response, _, err := BuildRequest("PUT", urlRequestStr, requestBody, c.headers, c.cookies)
+	response, _, err := BuildRequest("PUT", urlRequestStr, requestBody, c.headers, c.cookies, defaultTimeout)
 
 	return response, err
 }
 
+
 // BuildRequest builds and performs a new HTTP request to urlRequestStr of type
 // requestType with requestBody (use nil for GET). Returns the received
 // response and the body
-func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie) (*http.Response, []byte, error) {
+func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie, timeout int) (*http.Response, []byte, error) {
 
 	log.Printf("Encoding data for %s request and creating request body", requestType)
 
@@ -97,9 +108,9 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 		req.AddCookie(cookie)
 	}
 
-	// Create an HTTP client and send the request
+	// Create an HTTP client and send the request with specified timeout
 	client := &http.Client{
-		Timeout: time.Second * 300,
+		Timeout: time.Second * time.Duration(timeout),
 	}
 
 	log.Printf("Performing %s request to %s", requestType, urlRequestStr)

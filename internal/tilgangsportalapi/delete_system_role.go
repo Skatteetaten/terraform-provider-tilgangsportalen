@@ -23,7 +23,8 @@ func (client *Client) DeleteSystemRole(role DeleteSystemRole) (*http.Response, e
 	deleteRoleURL := "/SKAT_RoleGovernance/DeleteRole"
 
 	// Perform the POST request
-	response, err := client.PostRequest(deleteRoleURL, roleBody)
+	timeout := 900 // 15 minute timeout
+	response, err := client.PostRequestWithCustomTimeout(deleteRoleURL, roleBody, timeout)
 	if err != nil {
 		return nil, err
 	}
