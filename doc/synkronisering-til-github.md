@@ -23,7 +23,7 @@ beskrevet over er brukt som passord.
 Token skal rulleres hver 60 dager.
 Vi får en epost til felles postkasse (dataplattform(at)skatteetaten.no)
 med en link for å regenerere tokenet ca en uke før utløp.
-Nåværende token løper ut **05. desember 2025**.
+Nåværende token løper ut **03. februar 2026**.
 
 ### Forutsetning
 - Tilgang til GitHub Account `skatteetaten-dataplattform-bot` med passord som ligger i teamets key vault `kv-skarp-dataplat`
