@@ -143,7 +143,6 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	// Setting role ID to be equal the new role name
 	data.Id = data.DisplayName
 
-
 	// Check if we need to wait for the object_id to be set for this group
 	waitForObjectId := checkIfGroupWillBeCreatedInEntra(r.client, entraGroup.DisplayName, entraGroup.Description)
 
@@ -173,7 +172,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	// list entra groups belonging to API user and check if the group exists
-	groupExists, err := r.client.CheckIfGroupExists(data.DisplayName.ValueString())
+	groupExists, _, err := r.client.CheckIfGroupExists(data.DisplayName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Entra Group %s exists, got error: %s", data.DisplayName, err))
 		return

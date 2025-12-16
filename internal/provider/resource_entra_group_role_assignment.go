@@ -101,6 +101,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		RoleName:   data.RoleName.ValueString(),
 		EntraGroup: data.EntraGroup.ValueString(),
 	}
+
 	_, err := r.client.AssignEntraGroupToRole(roleAssignment)
 
 	if err != nil {
@@ -148,7 +149,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	}
 
 	// check if System Role in state (still) exists - if not remove assignment from state
-	roleExists, err := r.client.CheckIfRoleExists(data.RoleName.ValueString())
+	roleExists, actualRoleName, err := r.client.CheckIfRoleExists(data.RoleName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Role %s exists, got error: %s", data.RoleName, err))
 		return
@@ -160,6 +161,15 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
+	// Validate that the role name casing matches the API
+	if actualRoleName != data.RoleName.ValueString() {
+		resp.Diagnostics.AddError(
+			"Role Name Casing Mismatch",
+			fmt.Sprintf("The role name in your configuration '%s' does not match the actual role name '%s' in Tilgangsportalen. Please update your configuration to use the exact role name with correct casing.", data.RoleName.ValueString(), actualRoleName),
+		)
+		return
+	}
+
 	tflog.Trace(ctx, "Read Entra Group Role Assignment to see if the role is still assigned to the group")
 
 	response, err := r.client.ListEntraGroupsForRole(data.RoleName.ValueString())
@@ -168,22 +178,34 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	// Check if the group is assigned to the role
-	assigned := 0
+	// Check if the group is assigned to the role and validate casing
+	assigned := false
+	var actualGroupName string
 
 	for _, group := range response.EntraGroups {
 
 		tflog.Debug(ctx, fmt.Sprintf("Checking if group %s matches the group from resource state %s", group.DisplayName, data.EntraGroup))
 
-		if group.DisplayName == data.EntraGroup.ValueString() {
-			assigned = 1
+		if strings.EqualFold(group.DisplayName, data.EntraGroup.ValueString()) {
+			assigned = true
+			actualGroupName = group.DisplayName
+			break
 		}
 	}
 
 	// if group is not assigned, then remove it from the state
-	if assigned == 0 {
+	if !assigned {
 		tflog.Debug(ctx, fmt.Sprintf("Group %s is not assigned to role %s, removing from state", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
 		resp.State.RemoveResource(ctx)
+		return
+	}
+
+	// Validate that the group name casing matches the API
+	if actualGroupName != data.EntraGroup.ValueString() {
+		resp.Diagnostics.AddError(
+			"Entra Group Name Casing Mismatch",
+			fmt.Sprintf("The Entra group name in your configuration '%s' does not match the actual group name '%s' in Tilgangsportalen. Please update your configuration to use the exact group name with correct casing.", data.EntraGroup.ValueString(), actualGroupName),
+		)
 		return
 	}
 
