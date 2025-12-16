@@ -178,7 +178,7 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	// Check if the role exists
-	exists, err := r.client.CheckIfRoleExists(data.Name.ValueString())
+	exists, _, err := r.client.CheckIfRoleExists(data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if System Role %s exists, got error: %s", data.Name.ValueString(), err))
 		return
@@ -303,7 +303,7 @@ func (r *NewSystemRoleResource) Delete(ctx context.Context, req resource.DeleteR
 	_, err := r.client.DeleteSystemRole(role)
 	if err != nil {
 		// Known API error where deletion occasionally fails, handle this by checking if role still exists
-		exists, _ := r.client.CheckIfRoleExists(data.Name.ValueString())
+		exists, _, _ := r.client.CheckIfRoleExists(data.Name.ValueString())
 		if !exists {
 			tflog.Warn(ctx, fmt.Sprintf("Deletion of System Role %s failed, but the role is no longer returned. You may be unable to create a new role with the same name as an internal representation of the role may still remain.", data.Name))
 			return

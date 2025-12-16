@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.12.0
+
+FIXES:
+
+- Fixed issue where resources would be removed from state due to case-insensitive API behavior when configuration used different casing than stored in Tilgangsportalen.
+
+ENHANCEMENTS:
+
+- Added case-sensitive validation for role names in `resource_system_role` and `resource_entra_group_role_assignment`
+- Added case-sensitive validation for group names in `resource_entra_group` and `resource_entra_group_role_assignment`
+
 ## 0.11.1
 
 FIXES
