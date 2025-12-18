@@ -97,6 +97,42 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		return
 	}
 
+	// Validate role name casing BEFORE creating the assignment
+	roleExists, actualRoleName, roleError := r.client.CheckIfRoleExists(data.RoleName.ValueString())
+	if roleError != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Role %s exists, got error: %s", data.RoleName.ValueString(), roleError))
+		return
+	}
+	if !roleExists {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Role %s does not exist", data.RoleName.ValueString()))
+		return
+	}
+	if actualRoleName != data.RoleName.ValueString() {
+		resp.Diagnostics.AddError(
+			"Role Name Casing Mismatch",
+			fmt.Sprintf("The role name in your configuration '%s' does not match the actual role name '%s' in Tilgangsportalen. Please update your configuration to use the exact role name with correct casing.", data.RoleName.ValueString(), actualRoleName),
+		)
+		return
+	}
+
+	// Validate group name casing BEFORE creating the assignment
+	groupExists, actualGroupName, groupError := r.client.CheckIfGroupExists(data.EntraGroup.ValueString())
+	if groupError != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Entra Group %s exists, got error: %s", data.EntraGroup.ValueString(), groupError))
+		return
+	}
+	if !groupExists {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Entra Group %s does not exist", data.EntraGroup.ValueString()))
+		return
+	}
+	if actualGroupName != data.EntraGroup.ValueString() {
+		resp.Diagnostics.AddError(
+			"Entra Group Name Casing Mismatch",
+			fmt.Sprintf("The Entra group name in your configuration '%s' does not match the actual group name '%s' in Tilgangsportalen. Please update your configuration to use the exact group name with correct casing.", data.EntraGroup.ValueString(), actualGroupName),
+		)
+		return
+	}
+
 	roleAssignment := tilgangsportalapi.EntraGroupRoleAssignment{
 		RoleName:   data.RoleName.ValueString(),
 		EntraGroup: data.EntraGroup.ValueString(),
@@ -149,9 +185,9 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	}
 
 	// check if System Role in state (still) exists - if not remove assignment from state
-	roleExists, actualRoleName, err := r.client.CheckIfRoleExists(data.RoleName.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Role %s exists, got error: %s", data.RoleName, err))
+	roleExists, actualRoleName, roleError := r.client.CheckIfRoleExists(data.RoleName.ValueString())
+	if roleError != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Role %s exists, got error: %s", data.RoleName, roleError))
 		return
 	}
 
@@ -172,9 +208,9 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 
 	tflog.Trace(ctx, "Read Entra Group Role Assignment to see if the role is still assigned to the group")
 
-	response, err := r.client.ListEntraGroupsForRole(data.RoleName.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to list Entra Goups for System Role %s, got error: %s", data.RoleName, err))
+	response, groupError := r.client.ListEntraGroupsForRole(data.RoleName.ValueString())
+	if groupError != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to list Entra Goups for System Role %s, got error: %s", data.RoleName, groupError))
 		return
 	}
 

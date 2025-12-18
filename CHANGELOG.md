@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.1
+
+FIXES:
+
+- Fixed issue where `resource_entra_group_role_assignment` would be created in API even with incorrect casing, causing state management issues.
+
+ENHANCEMENTS:
+
+- Added case-sensitive validation for role and group names in `resource_entra_group_role_assignment` during Create to prevent resources from being created with incorrect casing.
+
 ## 0.12.0
 
 FIXES:
