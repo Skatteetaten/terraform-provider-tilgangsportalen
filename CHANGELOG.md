@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0
+
+ENCHANCEMENTS:
+
+- Added return value `object_id` to resource `tilgangsportalen_system_role`
+
 ## 0.12.1
 
 FIXES:

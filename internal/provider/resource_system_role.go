@@ -35,6 +35,7 @@ type NewSystemRoleResource struct {
 type SystemRoleModel struct {
 	ID                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
+	ObjectID                types.String `tfsdk:"object_id"`
 	SystemRoleOwner         types.String `tfsdk:"system_role_owner"`
 	SystemRoleSecurityOwner types.String `tfsdk:"system_role_security_owner"`
 	ApprovalLevel           types.String `tfsdk:"approval_level"`
@@ -72,6 +73,13 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 						"The name of the role may only contain alphanumeric characters, space ( ), underscore (_), and dash (-). The maximum length is 256 characters.",
 					),
 					stringvalidator.LengthAtMost(256),
+				},
+			},
+			"object_id": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The object ID of the system role in Tilgangsportalen",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"system_role_owner": schema.StringAttribute{
@@ -142,6 +150,7 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 
 	role := tilgangsportalapi.SystemRole{
 		Name:            data.Name.ValueString(),
+		ObjectID:        data.ObjectID.ValueString(),
 		L2Ident:         data.SystemRoleOwner.ValueString(),
 		L3Ident:         data.SystemRoleSecurityOwner.ValueString(),
 		ApprovalLevel:   data.ApprovalLevel.ValueString(),
@@ -160,6 +169,14 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 	data.ID = data.Name
 
 	tflog.Debug(ctx, fmt.Sprintf("System Role %s created", data.Name))
+
+	// Read back the created role to get the ObjectID
+	systemRole, err := r.client.GetSystemRole(data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read System Role %s after creation, got error: %s", data.Name, err))
+		return
+	}
+	data.ObjectID = types.StringValue(systemRole.ObjectID)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -199,6 +216,7 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 
 	// Map to SystemRoleModel and save updated data into Terraform state
 	data.Name = types.StringValue(systemRole.Name)
+	data.ObjectID = types.StringValue(systemRole.ObjectID)
 	data.SystemRoleOwner = types.StringValue(systemRole.L2Ident)
 	data.ApprovalLevel = types.StringValue(systemRole.ApprovalLevel)
 	data.ProductCategory = types.StringValue(systemRole.ProductCategory)
@@ -228,10 +246,8 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 	var namePlan types.String
 	var nameState types.String
 
-	// Read Terraform plan into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &rolePlan)...)
-	// Read Terraform state into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &roleState)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &rolePlan)...)   // Read Terraform plan into the model
+	resp.Diagnostics.Append(req.State.Get(ctx, &roleState)...) // Read Terraform state into the model
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -243,10 +259,9 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 
 	// If the name of the role differs, we call RenameSystemRole
 	if !namePlan.Equal(nameState) {
-
 		renameRole := tilgangsportalapi.RenameSystemRole{
-			OldName: nameState.ValueString(),
-			NewName: namePlan.ValueString(),
+			ObjectID: roleState.ObjectID.ValueString(), // Use ObjectID as it is a stable identifier
+			NewName:  namePlan.ValueString(),
 		}
 
 		_, err := r.client.RenameSystemRole(renameRole)
@@ -259,8 +274,11 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 	// If one or more of the fields Description, Approval Level, System Role
 	// Owner, System Role Security Owner or Product Category differs, we call
 	// UpdateRole.
-	if !rolePlan.Description.Equal(roleState.Description) || !rolePlan.SystemRoleOwner.Equal(roleState.SystemRoleOwner) || !rolePlan.SystemRoleSecurityOwner.Equal(roleState.SystemRoleSecurityOwner) ||
-		!rolePlan.ApprovalLevel.Equal(roleState.ApprovalLevel) || !rolePlan.ProductCategory.Equal(roleState.ProductCategory) {
+	if !rolePlan.Description.Equal(roleState.Description) ||
+		!rolePlan.SystemRoleOwner.Equal(roleState.SystemRoleOwner) ||
+		!rolePlan.SystemRoleSecurityOwner.Equal(roleState.SystemRoleSecurityOwner) ||
+		!rolePlan.ApprovalLevel.Equal(roleState.ApprovalLevel) ||
+		!rolePlan.ProductCategory.Equal(roleState.ProductCategory) {
 
 		role := tilgangsportalapi.SystemRoleChange{
 			RoleName:         namePlan.ValueString(), // identifier for the role, using plan in case the name was changed above
@@ -277,7 +295,6 @@ func (r *NewSystemRoleResource) Update(ctx context.Context, req resource.UpdateR
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update fields of System Role %s, got error: %s", namePlan, err))
 			return
 		}
-
 	}
 
 	// Save updated data into Terraform state

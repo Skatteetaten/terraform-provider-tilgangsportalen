@@ -48,6 +48,7 @@ type EntraGroupRoleAssignment struct {
 // SystemRole represents the API body for creating a system role
 type SystemRole struct {
 	Name            string `json:"Name"`
+	ObjectID        string `json:"RoleUID"`
 	L2Ident         string `json:"L2Ident"`
 	L3Ident         string `json:"L3Ident"`
 	ApprovalLevel   string `json:"ApprovalLevel"`
@@ -67,6 +68,7 @@ type PublishSystemRole struct {
 // a role
 type SystemRoleChange struct {
 	RoleName         string `json:"RoleName"`
+	ObjectID         string `json:"RoleUID"`
 	L2Ident          string `json:"L2Ident"`
 	L3Ident          string `json:"L3Ident"`
 	NewApprovalLevel string `json:"NewApprovalLevel"`
@@ -75,10 +77,11 @@ type SystemRoleChange struct {
 }
 
 // RenameSystemRole represents the API body for modifying the name of
-// a role
+// a role. Either OldName or RoleUID can be used as identifier.
 type RenameSystemRole struct {
-	OldName string `json:"OldName"`
-	NewName string `json:"NewName"`
+	OldName  string `json:"OldName,omitempty"`
+	ObjectID string `json:"RoleUID,omitempty"`
+	NewName  string `json:"NewName"`
 }
 
 // DeleteSystemRole represents the API body for deleting a role identified

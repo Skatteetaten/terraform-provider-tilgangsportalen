@@ -7,20 +7,22 @@ import (
 	"strings"
 )
 
-// GetSystemRole gets information about a specific named role / check if role
-// exists. Gets the name, description, approval level, system role owner,
+// GetSystemRoleId gets information about a specific role ID. 
+// It gets the name, description, approval level, system role owner,
 // system role security owner and product category for a specific
-// (named) system role.
-// See https://wiki.sits.no/spaces/OIM/pages/1380418950/17.+Get+Role+V1
-func (client *Client) GetSystemRole(roleName string) (*SystemRole, error) {
+// system role.
+// See https://wiki.sits.no/spaces/OIM/pages/1460147567/17.+Get+Role+ID
+func (client *Client) GetSystemRoleID(objectID string) (*SystemRole, error) {
 	var data SystemRole
-	log.Printf("Fetching system role %s", roleName)
+	log.Printf("Fetching system role by ID %s", objectID)
+
 	// Construct the URL, with query escape to handle special characters in role name
-	getRoleURL := "/SKAT_RoleGovernance/GetRoleV1?roleName=" + url.QueryEscape(roleName)
+	getRoleURL := "/SKAT_RoleGovernance/GetRoleID?RoleUID=" + url.QueryEscape(objectID)
+	
 	// Perform the POST request
 	response, err := client.GetRequest(getRoleURL)
 	if err != nil {
-		log.Printf("Role with name \"%s\" was not found.", roleName)
+		log.Printf("Role with ID \"%s\" was not found.", objectID)
 		return nil, err
 	}
 
@@ -35,7 +37,7 @@ func (client *Client) GetSystemRole(roleName string) (*SystemRole, error) {
 	data.L2Ident = strings.ToLower(data.L2Ident)
 	data.L3Ident = strings.ToLower(data.L3Ident)
 
-	log.Printf("Role with name %s was found.", roleName)
+	log.Printf("Role with ID %s was found.", objectID)
 
 	return &data, nil
 }

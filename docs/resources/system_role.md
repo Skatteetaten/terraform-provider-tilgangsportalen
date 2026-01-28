@@ -59,6 +59,7 @@ resource "tilgangsportalen_system_role" "example_3" {
 ### Read-Only
 
 - `id` (String) Identifier for the System Role. Currently, as we do not get a unique ID we can use from the API, ID is set equal to Name
+- `object_id` (String) The object ID of the system role in Tilgangsportalen
 
 ## Import
 
