@@ -4,13 +4,16 @@ import (
 	"context"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/datasourcevalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &SystemRoleDataSource{}
+var _ datasource.DataSourceWithConfigValidators = &SystemRoleDataSource{}
 
 // NewSystemRoleDataSource is a helper function
 func NewSystemRoleDataSource() datasource.DataSource {
@@ -39,8 +42,14 @@ func (d *SystemRoleDataSource) Schema(ctx context.Context, req datasource.Schema
 				Computed:    true,
 			},
 			"name": schema.StringAttribute{
-				Description: "The name of the system role.",
-				Required:    true,
+				Description: "The name of the system role. Either name or object_id must be specified.",
+				Optional:    true,
+				Computed:    true,
+			},
+			"object_id": schema.StringAttribute{
+				Description: "The object ID of the system role. Either name or object_id must be specified.",
+				Optional:    true,
+				Computed:    true,
 			},
 			"system_role_owner": schema.StringAttribute{
 				Description: "The system role owner.",
@@ -70,6 +79,16 @@ func (d *SystemRoleDataSource) Schema(ctx context.Context, req datasource.Schema
 	}
 }
 
+// ConfigValidators returns validators for the data source configuration
+func (d *SystemRoleDataSource) ConfigValidators(ctx context.Context) []datasource.ConfigValidator {
+	return []datasource.ConfigValidator{
+		datasourcevalidator.ExactlyOneOf(
+			path.MatchRoot("name"),
+			path.MatchRoot("object_id"),
+		),
+	}
+}
+
 // Configure adds the provider configured client to the resource.
 func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	ConfigureClientDataSource(ctx, req, resp, func(client *tilgangsportalapi.Client) {
@@ -83,21 +102,26 @@ func (d *SystemRoleDataSource) Read(ctx context.Context, req datasource.ReadRequ
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Get the system role from the API
-	role, err := d.client.GetSystemRole(data.Name.ValueString())
+	// Find the role by name or object_id
+	role, err := d.findSystemRole(&data)
+
 	if err != nil {
-		resp.Diagnostics.AddError("failed to get system role", err.Error())
+		resp.Diagnostics.AddError("Failed to get system role", err.Error())
+		return
+	}
+	if role == nil {
+		resp.Diagnostics.AddError("System role not found", "No matching system role found")
 		return
 	}
 
 	// Set the resource data
 	data.ID = types.StringValue(role.Name)
 	data.Name = types.StringValue(role.Name)
+	data.ObjectID = types.StringValue(role.ObjectID)
 	data.SystemRoleOwner = types.StringValue(role.L2Ident)
 	data.SystemRoleSecurityOwner = types.StringValue(role.L3Ident)
 	data.ApprovalLevel = types.StringValue(role.ApprovalLevel)
@@ -107,4 +131,19 @@ func (d *SystemRoleDataSource) Read(ctx context.Context, req datasource.ReadRequ
 
 	// Write the resource data
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}
+
+// findSystemRole finds a system role by name or object_id
+func (d *SystemRoleDataSource) findSystemRole(data *SystemRoleModel) (*tilgangsportalapi.SystemRole, error) {
+	// Lookup by name
+	if !data.Name.IsNull() && !data.Name.IsUnknown() {
+		return d.client.GetSystemRole(data.Name.ValueString())
+	}
+
+	// Lookup by object_id
+	if !data.ObjectID.IsNull() && !data.ObjectID.IsUnknown() {
+		return d.client.GetSystemRoleID(data.ObjectID.ValueString())
+	}
+
+	return nil, nil
 }
