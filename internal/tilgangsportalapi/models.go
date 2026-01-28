@@ -94,6 +94,7 @@ type DeleteSystemRole struct {
 // Role represents a single role with a DisplayName returned by ListSystemRoles
 type Role struct {
 	DisplayName string `json:"DisplayName"`
+	ObjectID    string `json:"RoleUID"`
 }
 
 // Roles represents the structure of the API response for ListSystemRoles
