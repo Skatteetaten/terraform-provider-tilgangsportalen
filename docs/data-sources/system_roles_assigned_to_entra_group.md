@@ -36,5 +36,6 @@ data "tilgangsportalen_system_roles_assigned_to_entra_group" "this" {
 Read-Only:
 
 - `display_name` (String) String identifier of the System Role display name.
+- `object_id` (String) The Object ID of the System Role.
 - `system_role_owner` (String) String identifier of the System Role owner.
 - `system_role_owner_display_name` (String) String identifier of the System Role owner display name.

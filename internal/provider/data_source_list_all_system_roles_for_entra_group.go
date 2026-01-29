@@ -34,6 +34,7 @@ type ListAllSystemRolesForEntraGroupModel struct {
 
 type SingleSystemRoleWithOwnerModel struct {
 	DisplayName   types.String `tfsdk:"display_name"`
+	ObjectID      types.String `tfsdk:"object_id"`
 	L2Ident       types.String `tfsdk:"system_role_owner"`
 	L2DisplayName types.String `tfsdk:"system_role_owner_display_name"`
 }
@@ -60,6 +61,10 @@ func (d *ListAllSystemRolesForEntraGroup) Schema(ctx context.Context, req dataso
 					Attributes: map[string]schema.Attribute{
 						"display_name": schema.StringAttribute{
 							Description: "String identifier of the System Role display name.",
+							Computed:    true,
+						},
+						"object_id": schema.StringAttribute{
+							Description: "The Object ID of the System Role.",
 							Computed:    true,
 						},
 						"system_role_owner": schema.StringAttribute{
@@ -105,6 +110,7 @@ func (d *ListAllSystemRolesForEntraGroup) Read(ctx context.Context, req datasour
 	for _, role := range response.Roles {
 		roleState := SingleSystemRoleWithOwnerModel{
 			DisplayName:   types.StringValue(role.DisplayName),
+			ObjectID:      types.StringValue(role.ObjectID),
 			L2Ident:       types.StringValue(role.L2Ident),
 			L2DisplayName: types.StringValue(role.L2DisplayName),
 		}
