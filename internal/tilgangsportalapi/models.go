@@ -108,6 +108,7 @@ type Roles struct {
 // RoleOwner represents a single role with DisplayName, L2Ident and L2DisplayName - returned by ListAllSystemRolesForEntraGroup
 type RoleWithOwner struct {
 	DisplayName   string `json:"DisplayName"`
+	ObjectID      string `json:"RoleUID"`
 	L2Ident       string `json:"L2Ident"`
 	L2DisplayName string `json:"L2DisplayName"`
 }

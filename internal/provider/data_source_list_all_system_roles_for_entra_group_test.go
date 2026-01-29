@@ -38,8 +38,8 @@ func TestListAllSystemRolesForEntraGroupDataSource(t *testing.T) {
                 `, groupName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "group_name", groupName),
-					// confirm that roles for the group are empty
-					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.#", "0"),
+					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.#", "0"), // confirm that roles for the group are empty
+
 				),
 			},
 			// add group role assignment and check that the role is listed
@@ -74,8 +74,18 @@ func TestListAllSystemRolesForEntraGroupDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "group_name", groupName),
 					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.#", "1"),
 					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.0.display_name", roleName),
+					resource.TestCheckResourceAttrSet("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.0.object_id"),
 					resource.TestCheckResourceAttr("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.0.system_role_owner", testUser),
 					resource.TestCheckResourceAttrSet("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.0.system_role_owner_display_name"),
+
+					// Check that object_id is not empty
+					resource.TestCheckResourceAttrWith("data.tilgangsportalen_system_roles_assigned_to_entra_group.roles_for_group", "roles.0.object_id",
+						func(value string) error {
+							if value == "" {
+								return fmt.Errorf("object_id should not be empty")
+							}
+							return nil
+						}),
 				),
 			},
 		},

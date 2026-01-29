@@ -2,9 +2,12 @@
 
 ## 0.13.0
 
-ENCHANCEMENTS:
+ENHANCEMENTS:
 
 - Added return value `object_id` to resource `tilgangsportalen_system_role`
+- Added return value `object_id` to data source `tilgangsportalen_system_role`
+- Added return value `object_id` to data source `tilgangsportalen_system_roles`
+- Added return value `object_id` to data source `tilgangsportalen_system_roles_assigned_to_group`
 
 ## 0.12.1
 

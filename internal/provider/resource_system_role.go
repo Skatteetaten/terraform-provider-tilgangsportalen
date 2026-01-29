@@ -346,6 +346,7 @@ func (r *NewSystemRoleResource) ImportState(ctx context.Context, req resource.Im
 	role := SystemRoleModel{
 		ID:                      types.StringValue(response.Name),
 		Name:                    types.StringValue(response.Name),
+		ObjectID:                types.StringValue(response.ObjectID),
 		Description:             types.StringValue(response.Description),
 		ApprovalLevel:           types.StringValue(response.ApprovalLevel),
 		SystemRoleOwner:         types.StringValue(response.L2Ident),

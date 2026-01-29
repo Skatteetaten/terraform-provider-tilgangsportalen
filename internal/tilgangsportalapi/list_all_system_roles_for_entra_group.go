@@ -15,7 +15,7 @@ func (client *Client) ListAllSystemRolesForEntraGroup(GroupName string) (*RolesW
 	var data RolesWithOwner
 	log.Printf("Listing roles for Entra Group %s ...", GroupName)
 	// Construct the URL
-	listEntraGroupsForRoleURL := fmt.Sprintf("/SKAT_RoleGovernance/ListRolesForAzureADGroup?GroupName=%s", url.QueryEscape(GroupName))
+	listEntraGroupsForRoleURL := fmt.Sprintf("/SKAT_RoleGovernance/ListRolesForAzureADGroupV1?GroupName=%s", url.QueryEscape(GroupName))
 
 	// Perform the POST request
 	response, err := client.GetRequest(listEntraGroupsForRoleURL)
