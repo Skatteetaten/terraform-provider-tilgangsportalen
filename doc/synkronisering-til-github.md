@@ -23,7 +23,7 @@ beskrevet over er brukt som passord.
 Token skal rulleres hver 60 dager.
 Vi får en epost til felles postkasse (dataplattform(at)skatteetaten.no)
 med en link for å regenerere tokenet ca en uke før utløp.
-Nåværende token løper ut **03. februar 2026**.
+Nåværende token løper ut **09. april 2026**.
 
 ### Forutsetning
 - Tilgang til GitHub Account `skatteetaten-dataplattform-bot` med passord som ligger i teamets key vault `kv-skarp-dataplat`
@@ -31,7 +31,7 @@ Nåværende token løper ut **03. februar 2026**.
 - MFA-kode
 
 ### Instruksjon
-1. Hente passord til `skatteetaten-dataplattform-bot` fra teamets key vault.
+1. Hente passord til `skatteetaten-dataplattform-bot` fra teamets key vault via Sikker VDI (Sikker Ubuntu anbefales for operasjoner i key vaults)
 2. Logg inn i GitHub med `skatteetaten-dataplattform-bot` som brukernavn og passord. Spør teamlead om MFA-koden.
 3. Gå til Github profilen > `Settings` > `Developer Settings` > `Personal access tokens` > `Tokens (classic)` og genere en ny klassisk token med scope for `repo`og `workflow` som utløper etter 60 dager.
 [Dokumentasjon av GitHub PAT tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
