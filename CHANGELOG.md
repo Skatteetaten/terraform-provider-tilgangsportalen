@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.0
+
+ENHANCEMENTS:
+
+- Refactored `CheckIfGroupExists` and `CheckIfRoleExists` to use direct GET calls instead of list operations for improved performance
+
 ## 0.13.0
 
 ENHANCEMENTS:

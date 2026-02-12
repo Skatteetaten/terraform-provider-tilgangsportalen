@@ -138,13 +138,13 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		EntraGroup: data.EntraGroup.ValueString(),
 	}
 
-	_, err := r.client.AssignEntraGroupToRole(roleAssignment)
+	_, assignmentErr := r.client.AssignEntraGroupToRole(roleAssignment)
 
-	if err != nil {
+	if assignmentErr != nil {
 		// if the group is already assigned to the role, import it in stead
-		assigned, err := r.client.CheckIfGroupIsAssignedToRole(data.EntraGroup.ValueString(), data.RoleName.ValueString())
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign or check if Entra Group %s is assigned to Role %s, got error: %s", data.EntraGroup.ValueString(), data.RoleName.ValueString(), err))
+		assigned, checkErr := r.client.CheckIfGroupIsAssignedToRole(data.EntraGroup.ValueString(), data.RoleName.ValueString())
+		if checkErr != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign or check if Entra Group %s is assigned to Role %s, got error: %s", data.EntraGroup.ValueString(), data.RoleName.ValueString(), checkErr))
 			return
 		}
 		// if assigned and schema force is equal to true, import state
@@ -158,7 +158,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Entra Group %s is already assigned to Role %s, use flag 'force' = true to automatically import resource on assignment.", data.EntraGroup.ValueString(), data.RoleName.ValueString()))
 			return
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign Entra Group %s to Role %s, got error: %s", data.EntraGroup, data.RoleName, err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to assign Entra Group %s to Role %s, got error: %s", data.EntraGroup, data.RoleName, assignmentErr))
 			return
 		}
 	}

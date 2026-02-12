@@ -171,7 +171,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// list entra groups belonging to API user and check if the group exists
+	// Check if the group exists
 	groupExists, _, err := r.client.CheckIfGroupExists(data.DisplayName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Entra Group %s exists, got error: %s", data.DisplayName, err))
