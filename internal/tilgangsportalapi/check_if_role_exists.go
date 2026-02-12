@@ -1,22 +1,15 @@
 package tilgangsportalapi
 
-import "strings"
-
-// CheckIfRoleExists calls GetSystemRole to check if a role with the name
-// roleName exists (case-insensitive matching). Returns true if the role exists,
-// the actual role name from the API, and any error encountered.
+// CheckIfRoleExists checks if a role with the name roleName exists, and is owned
+// by authenticated system user (case-insensitive matching).
+// Returns true if the role exists, the actual role name from the API, and any error encountered.
 func (client *Client) CheckIfRoleExists(roleName string) (bool, string, error) {
-	roles, err := client.ListSystemRoles()
+	role, err := client.GetSystemRole(roleName)
 
 	if err != nil {
+		// Role does not exist
 		return false, "", err
 	}
 
-	for _, role := range roles.Roles {
-		if strings.EqualFold(role.DisplayName, roleName) {
-			return true, role.DisplayName, nil
-		}
-	}
-
-	return false, "", nil
+	return true, role.Name, nil
 }
