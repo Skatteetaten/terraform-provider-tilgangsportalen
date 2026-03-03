@@ -28,8 +28,17 @@ func (client *Client) GetEntraGroup(entraGroupName string, waitForObjectId bool)
 		// Perform the GET request
 		response, err := client.GetRequest(getGroupURL)
 		if err != nil {
-			log.Printf("Entra ID group with name \"%s\" was not found.", entraGroupName)
-			return nil, err
+			// If waitForObjectId is true, we will retry fetching the group until it has an object_id,
+			// as it may take some time for the group to be created and available in the API.
+			// If waitForObjectId is false, we will not retry and return the error immediately.
+			if waitForObjectId {
+				log.Printf("An error was thrown when fetching Entra group with name \"%s\". Error: %v. Retrying in 10 seconds...", entraGroupName, err)
+				time.Sleep(10 * time.Second)
+				continue
+			} else {
+				log.Printf("Entra ID group with name \"%s\" was not found.", entraGroupName)
+				return nil, err
+			}
 		}
 
 		// Unmarshal the JSON data into the EntraGroup struct

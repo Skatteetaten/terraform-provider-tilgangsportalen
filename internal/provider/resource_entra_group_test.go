@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"testing"
 	"time"
 
@@ -232,6 +233,33 @@ func TestCreateNewEntraGroupWithMaxNameLength(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "inheritance_level", "User"),
 					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"),
 				),
+			},
+		},
+	})
+}
+
+func TestCreateNewEntraGroupThatIsNotCreatedInEntra(t *testing.T) {
+	t.Parallel()
+
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	name := fmt.Sprintf("[TESTNOENTRA] Test-Create_New_Entra_Group_Not_In_Entra %d", time)
+	description := "Group not created in Entra"
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_entra_group" "test" {
+					name = "%s"
+					description = "%s"
+					inheritance_level = "User"
+				}
+				`, name, description),
+				ExpectError: regexp.MustCompile("Unable to import entra group .*"),
 			},
 		},
 	})
