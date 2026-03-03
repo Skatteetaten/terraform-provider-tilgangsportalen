@@ -1,5 +1,16 @@
 # Changelog
 
+## [UNRELEASED]
+
+ENHANCEMENTS:
+
+- `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
+  The provider will instead continue polling until the timeout.
+
+INTERNAL:
+
+- Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
+
 ## 0.14.0
 
 ENHANCEMENTS:

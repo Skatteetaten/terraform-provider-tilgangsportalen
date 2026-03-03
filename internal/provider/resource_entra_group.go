@@ -304,7 +304,11 @@ func checkIfGroupWillBeCreatedInEntra(client *tilgangsportalapi.Client, name str
 	}
 
 	// Name must start with "[APPTEST]" and description must be equal to "APPTEST" for entra group to be created in Entra via tilgangsportalen test
+	// If name starts with "[TESTNOENTRA]", group will not be created in Entra, but the provider will still try to fetch the object_id.
+	// This is a workaround for the test TestCreateNewEntraGroupThatIsNotCreatedInEntra
 	if strings.HasPrefix(name, "[APPTEST]") && description == "APPTEST" {
+		return true
+	} else if strings.HasPrefix(name, "[TESTNOENTRA]") {
 		return true
 	}
 
