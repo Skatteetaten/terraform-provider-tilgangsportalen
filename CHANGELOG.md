@@ -1,22 +1,5 @@
 # Changelog
 
-## [UNRELEASED]
-
-ENHANCEMENTS:
-
-- `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
-  The provider will instead continue polling until the timeout.
-
-INTERNAL:
-
-- Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
-
-## 0.14.0
-
-ENHANCEMENTS:
-
-- Refactored `CheckIfGroupExists` and `CheckIfRoleExists` to use direct GET calls instead of list operations for improved performance
-
 ## 0.13.0
 
 ENHANCEMENTS:
@@ -25,6 +8,13 @@ ENHANCEMENTS:
 - Added return value `object_id` to data source `tilgangsportalen_system_role`
 - Added return value `object_id` to data source `tilgangsportalen_system_roles`
 - Added return value `object_id` to data source `tilgangsportalen_system_roles_assigned_to_group`
+- Refactored `CheckIfGroupExists` and `CheckIfRoleExists` to use direct GET calls instead of list operations for improved performance
+- `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
+  The provider will instead continue polling until the timeout.
+
+INTERNAL:
+
+- Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
 
 ## 0.12.1
 
