@@ -55,6 +55,10 @@ func (d *EntraGroupsForRoleDataSource) Schema(ctx context.Context, req datasourc
 							Description: "String identifier of the Entra group display name.",
 							Computed:    true,
 						},
+						"entitlement_uid": schema.StringAttribute{
+							Description: "The unique ID of the Entra group (entitlement) in Tilgangsportalen.",
+							Computed:    true,
+						},
 					},
 				},
 			},
@@ -88,7 +92,8 @@ func (d *EntraGroupsForRoleDataSource) Read(ctx context.Context, req datasource.
 
 	for _, group := range response.EntraGroups {
 		groupState := SingleEntraGroupModel{
-			GroupName: types.StringValue(group.DisplayName),
+			GroupName:      types.StringValue(group.DisplayName),
+			EntitlementUID: types.StringValue(group.EntitlementUID),
 		}
 		data.Groups = append(data.Groups, groupState)
 	}

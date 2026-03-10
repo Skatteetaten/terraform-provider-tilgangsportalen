@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.13.0
+## UNRELEASED
 
 ENHANCEMENTS:
 
@@ -11,6 +11,7 @@ ENHANCEMENTS:
 - Refactored `CheckIfGroupExists` and `CheckIfRoleExists` to use direct GET calls instead of list operations for improved performance
 - `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
   The provider will instead continue polling until the timeout.
+- Added attribute `entitlement_uid` to data sources `tilgangsportalen_entra_groups` and `tilgangsportalen_entra_groups_assigned_to_role`
 
 INTERNAL:
 
