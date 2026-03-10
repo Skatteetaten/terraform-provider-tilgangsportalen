@@ -49,10 +49,14 @@ func TestNewEntraGroupsForRoleDataSource(t *testing.T) {
 
 				data "tilgangsportalen_entra_groups_assigned_to_role" "groups_assigned_role" {
 					role_name = tilgangsportalen_system_role.test_role_assignment_data_source.name
+					depends_on = [tilgangsportalen_entra_group_role_assignment.test_role_assignment_data_source]
 				}
 				`, roleName, testUser, itShopName, groupName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "role_name", roleName),
+					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "groups.#", "1"),
+					resource.TestCheckResourceAttr("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "groups.0.displayname", groupName),
+					resource.TestCheckResourceAttrSet("data.tilgangsportalen_entra_groups_assigned_to_role.groups_assigned_role", "groups.0.entitlement_uid"),
 				),
 			},
 		},

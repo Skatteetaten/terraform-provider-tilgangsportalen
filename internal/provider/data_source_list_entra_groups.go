@@ -32,7 +32,8 @@ type EntraGroupsDataSourceModel struct {
 // SingleEntraGroupModel is used when reading the API response when listing
 // Entra groups
 type SingleEntraGroupModel struct {
-	GroupName types.String `tfsdk:"displayname"`
+	GroupName      types.String `tfsdk:"displayname"`
+	EntitlementUID types.String `tfsdk:"entitlement_uid"`
 }
 
 // Metadata returns the resource type name.
@@ -54,6 +55,10 @@ func (d *EntraGroupsDataSource) Schema(ctx context.Context, req datasource.Schem
 					Attributes: map[string]schema.Attribute{
 						"displayname": schema.StringAttribute{
 							Description: "String identifier of the Entra group display name.",
+							Computed:    true,
+						},
+						"entitlement_uid": schema.StringAttribute{
+							Description: "The unique ID of the Entra group (entitlement) in Tilgangsportalen.",
 							Computed:    true,
 						},
 					},
@@ -89,7 +94,8 @@ func (d *EntraGroupsDataSource) Read(ctx context.Context, req datasource.ReadReq
 
 	for _, group := range response.EntraGroups {
 		groupState := SingleEntraGroupModel{
-			GroupName: types.StringValue(group.DisplayName),
+			GroupName:      types.StringValue(group.DisplayName),
+			EntitlementUID: types.StringValue(group.EntitlementUID),
 		}
 		data.Groups = append(data.Groups, groupState)
 	}

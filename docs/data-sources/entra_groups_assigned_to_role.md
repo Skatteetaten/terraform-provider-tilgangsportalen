@@ -36,3 +36,4 @@ data "tilgangsportalen_entra_groups_assigned_to_role" "this" {
 Read-Only:
 
 - `displayname` (String) String identifier of the Entra group display name.
+- `entitlement_uid` (String) The unique ID of the Entra group (entitlement) in Tilgangsportalen.
