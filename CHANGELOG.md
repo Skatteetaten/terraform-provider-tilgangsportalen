@@ -12,10 +12,14 @@ ENHANCEMENTS:
 - `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
   The provider will instead continue polling until the timeout.
 - Added attribute `entitlement_uid` to data sources `tilgangsportalen_entra_groups` and `tilgangsportalen_entra_groups_assigned_to_role`
+- Improved `resource_entra_group` creation performance by adding a time.sleep before polling for object_id.
+  This reduces API traffic to Tilgangsportalen by avoiding unnecessary polling during the initial group creation phase.
+
 
 INTERNAL:
 
 - Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
+
 
 ## 0.12.1
 

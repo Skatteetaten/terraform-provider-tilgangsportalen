@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -145,6 +146,14 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 
 	// Check if we need to wait for the object_id to be set for this group
 	waitForObjectId := checkIfGroupWillBeCreatedInEntra(r.client, entraGroup.DisplayName, entraGroup.Description)
+
+	// Sleep before polling to reduce API traffic to Tilgangsportalen
+	// This is located inside the resource creation function, so it will only run when a resource is created, thus avoiding adding a sleep for data sources
+	sleepTime := 77 * time.Second
+	if waitForObjectId {
+		tflog.Debug(ctx, fmt.Sprintf("Sleeping %v before polling for Entra Group object_id", sleepTime))
+		time.Sleep(sleepTime)
+	}
 
 	// Get EntraIDOID from the GetAzureADGroup API
 	entraGroupRead, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), waitForObjectId)
@@ -311,6 +320,6 @@ func checkIfGroupWillBeCreatedInEntra(client *tilgangsportalapi.Client, name str
 	} else if strings.HasPrefix(name, "[TESTNOENTRA]") {
 		return true
 	}
-
+	
 	return false
 }
