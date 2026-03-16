@@ -1,5 +1,12 @@
 package tilgangsportalapi
 
+////   General models  ////
+
+type SuccessfulResponse struct {
+	RequestID string `json:"RequestID"`
+	Message   string `json:"message"`
+}
+
 ////    Entra Group    ////
 
 // EntraGroup represents the API body for creating an Entra group
