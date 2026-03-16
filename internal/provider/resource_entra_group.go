@@ -36,6 +36,7 @@ type NewEntraGroupResource struct {
 // EntraGroupModel is a mapping of the resource schema
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
+	EntitlementUID   types.String `tfsdk:"entitlement_uid"`
 	EntraIDOID       types.String `tfsdk:"object_id"`
 	DisplayName      types.String `tfsdk:"name"`
 	Alias            types.String `tfsdk:"alias"`
@@ -57,7 +58,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName",
+				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to `name`.",
 				// Plan modifier to import id from previous state to avoid "know after apply" message
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -66,6 +67,13 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"object_id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Object identifier for the Entra Group.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"entitlement_uid": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The unique ID of the Entra group (entitlement) in Tilgangsportalen. Will be empty for resources created using provider version `0.12.x` or earlier and imported resources.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -135,7 +143,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 		InheritanceLevel: data.InheritanceLevel.ValueString(),
 	}
 
-	_, err := r.client.CreateEntraGroup(entraGroup)
+	response, err := r.client.CreateEntraGroup(entraGroup)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Entra Group %s, got error: %s", data.DisplayName, err))
 		return
@@ -143,6 +151,9 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 
 	// Setting role ID to be equal the new role name
 	data.Id = data.DisplayName
+
+	// Setting EntitlementUID to the RequestID from the API response
+	data.EntitlementUID = types.StringValue(response.RequestID)
 
 	// Check if we need to wait for the object_id to be set for this group
 	waitForObjectId := checkIfGroupWillBeCreatedInEntra(r.client, entraGroup.DisplayName, entraGroup.Description)
@@ -156,7 +167,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Get EntraIDOID from the GetAzureADGroup API
-	entraGroupRead, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), waitForObjectId)
+	entraGroupRead, err := r.client.GetEntraGroupByID(data.EntitlementUID.ValueString(), waitForObjectId)
 	if err != nil {
 		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
 		return
@@ -193,15 +204,25 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// If group exists, we get the group and update state
-	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), false)
-	if err != nil {
-		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
-		return
+	// Prefer EntitlementUID lookup when available, otherwise fall back to display name.
+	var entraGroup *tilgangsportalapi.EntraGroup
+	if !data.EntitlementUID.IsNull() && data.EntitlementUID.ValueString() != "" {
+		entraGroup, err = r.client.GetEntraGroupByID(data.EntitlementUID.ValueString(), false)
+		if err != nil {
+			resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to get Entra Group with EntitlementUID %s, got error: %s", data.EntitlementUID.ValueString(), err))
+			return
+		}
+	} else {
+		entraGroup, err = r.client.GetEntraGroup(data.DisplayName.ValueString(), false)
+		if err != nil {
+			resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to get Entra Group with display name %s, got error: %s", data.DisplayName.ValueString(), err))
+			return
+		}
 	}
 
 	// Map to EntraGroupModel and save updated data into Terraform state
 	data.DisplayName = types.StringValue(entraGroup.DisplayName)
+	data.EntitlementUID = types.StringValue(entraGroup.EntitlementUID)
 	data.InheritanceLevel = types.StringValue(entraGroup.InheritanceLevel)
 	data.EntraIDOID = types.StringValue(entraGroup.EntraIDOID)
 
