@@ -1,6 +1,6 @@
 # Changelog
 
-## UNRELEASED
+## 0.13.0
 
 ENHANCEMENTS:
 
@@ -17,11 +17,9 @@ ENHANCEMENTS:
 - Improved `resource_entra_group` creation performance by adding a time.sleep before polling for object_id.
   This reduces API traffic to Tilgangsportalen by avoiding unnecessary polling during the initial group creation phase.
 
-
 INTERNAL:
 
 - Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
-
 
 ## 0.12.1
 
