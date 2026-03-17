@@ -30,3 +30,4 @@ data "tilgangsportalen_system_roles" "all" {}
 Read-Only:
 
 - `displayname` (String) String identifier of the System Role display name.
+- `object_id` (String) The object ID of the System Role.

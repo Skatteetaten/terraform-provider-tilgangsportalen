@@ -1,5 +1,12 @@
 package tilgangsportalapi
 
+////   General models  ////
+
+type SuccessfulResponse struct {
+	RequestID string `json:"RequestID"`
+	Message   string `json:"message"`
+}
+
 ////    Entra Group    ////
 
 // EntraGroup represents the API body for creating an Entra group
@@ -9,6 +16,7 @@ type EntraGroup struct {
 	InheritanceLevel string `json:"InheritanceLevel"`
 	Description      string `json:"Description"`
 	EntraIDOID       string `json:"EntraIDOID"`
+	EntitlementUID   string `json:"EntitlementUID"`
 }
 
 // EntraGroups represents the structure of the API response from
@@ -48,6 +56,7 @@ type EntraGroupRoleAssignment struct {
 // SystemRole represents the API body for creating a system role
 type SystemRole struct {
 	Name            string `json:"Name"`
+	ObjectID        string `json:"RoleUID"`
 	L2Ident         string `json:"L2Ident"`
 	L3Ident         string `json:"L3Ident"`
 	ApprovalLevel   string `json:"ApprovalLevel"`
@@ -67,6 +76,7 @@ type PublishSystemRole struct {
 // a role
 type SystemRoleChange struct {
 	RoleName         string `json:"RoleName"`
+	ObjectID         string `json:"RoleUID"`
 	L2Ident          string `json:"L2Ident"`
 	L3Ident          string `json:"L3Ident"`
 	NewApprovalLevel string `json:"NewApprovalLevel"`
@@ -75,10 +85,11 @@ type SystemRoleChange struct {
 }
 
 // RenameSystemRole represents the API body for modifying the name of
-// a role
+// a role. Either OldName or RoleUID can be used as identifier.
 type RenameSystemRole struct {
-	OldName string `json:"OldName"`
-	NewName string `json:"NewName"`
+	OldName  string `json:"OldName,omitempty"`
+	ObjectID string `json:"RoleUID,omitempty"`
+	NewName  string `json:"NewName"`
 }
 
 // DeleteSystemRole represents the API body for deleting a role identified
@@ -94,6 +105,7 @@ type DeleteSystemRole struct {
 // Role represents a single role with a DisplayName returned by ListSystemRoles
 type Role struct {
 	DisplayName string `json:"DisplayName"`
+	ObjectID    string `json:"RoleUID"`
 }
 
 // Roles represents the structure of the API response for ListSystemRoles
@@ -104,6 +116,7 @@ type Roles struct {
 // RoleOwner represents a single role with DisplayName, L2Ident and L2DisplayName - returned by ListAllSystemRolesForEntraGroup
 type RoleWithOwner struct {
 	DisplayName   string `json:"DisplayName"`
+	ObjectID      string `json:"RoleUID"`
 	L2Ident       string `json:"L2Ident"`
 	L2DisplayName string `json:"L2DisplayName"`
 }

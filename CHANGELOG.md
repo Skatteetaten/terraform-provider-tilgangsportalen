@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.13.0
+
+ENHANCEMENTS:
+
+- Added return value `object_id` to resource `tilgangsportalen_system_role`
+- Added return value `object_id` to data source `tilgangsportalen_system_role`
+- Added return value `object_id` to data source `tilgangsportalen_system_roles`
+- Added return value `object_id` to data source `tilgangsportalen_system_roles_assigned_to_group`
+- Refactored `CheckIfGroupExists` and `CheckIfRoleExists` to use direct GET calls instead of list operations for improved performance
+- `resource_entra_group` will not fail if the API returns an error when polling for Entra object ID.
+  The provider will instead continue polling until the timeout.
+- Added attribute `entitlement_uid` to data sources `tilgangsportalen_entra_groups` and `tilgangsportalen_entra_groups_assigned_to_role`
+- Added optional attribute `entitlement_uid` to data source `tilgangsportalen_entra_group` which can be used in stead of or in addtion to `name`
+- Added attribute `entitlement_uid` to resource `tilgangsportalen_entra_group`
+- Improved `resource_entra_group` creation performance by adding a time.sleep before polling for object_id.
+  This reduces API traffic to Tilgangsportalen by avoiding unnecessary polling during the initial group creation phase.
+
+INTERNAL:
+
+- Fixed test `TestTermsOfUseRoleAssignmentAlreadyAssigned`
+
 ## 0.12.1
 
 FIXES:

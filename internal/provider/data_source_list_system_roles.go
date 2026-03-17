@@ -32,9 +32,9 @@ type SystemRolesDataSourceModel struct {
 }
 
 // SingleSystemRoleModel as List method only returns display name
-// Can be later replaced by the model found in the System Role resource file
 type SingleSystemRoleModel struct {
 	RoleName types.String `tfsdk:"displayname"`
+	ObjectID types.String `tfsdk:"object_id"`
 }
 
 // Metadata returns the resource type name.
@@ -56,6 +56,10 @@ func (d *SystemRolesDataSource) Schema(ctx context.Context, req datasource.Schem
 					Attributes: map[string]schema.Attribute{
 						"displayname": schema.StringAttribute{
 							Description: "String identifier of the System Role display name.",
+							Computed:    true,
+						},
+						"object_id": schema.StringAttribute{
+							Description: "The object ID of the System Role.",
 							Computed:    true,
 						},
 					},
@@ -93,6 +97,7 @@ func (d *SystemRolesDataSource) Read(ctx context.Context, req datasource.ReadReq
 	for _, role := range response.Roles {
 		roleState := SingleSystemRoleModel{
 			RoleName: types.StringValue(role.DisplayName),
+			ObjectID: types.StringValue(role.ObjectID),
 		}
 		data.Roles = append(data.Roles, roleState)
 	}

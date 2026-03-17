@@ -330,6 +330,31 @@ func TestTermsOfUseRoleAssignmentAlreadyAssigned(t *testing.T) {
 					resource.TestCheckResourceAttrSet("tilgangsportalen_terms_of_use_role_assignment.test_same", "terms_of_use_description"),
 				),
 			},
+			// Remove the second assignment without destroying the resource. This allows the test to be cleaned up without errors
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_system_role" "test" {
+					name              = "%s"
+					product_category  = "TBD"
+					system_role_owner = "%s"
+					approval_level    = "L2"
+					description       = "Terraform acceptance test role for terms of use assignment."
+					it_shop_name      = "%s"
+				} 
+
+				resource "tilgangsportalen_terms_of_use_role_assignment" "test" {
+					role_name = tilgangsportalen_system_role.test.name
+					terms_of_use_identifier = "%s"
+				}
+
+				removed {
+				  from = tilgangsportalen_terms_of_use_role_assignment.test_same
+				  lifecycle {
+				    destroy = false
+				  }
+				}
+				`, roleName, testUser, itShopName, termsOfUse),
+			},
 		},
 	})
 }

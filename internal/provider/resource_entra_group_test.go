@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"testing"
 	"time"
 
@@ -39,7 +40,8 @@ func TestCreateNewEntraGroup(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "name", name),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "description", description),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "inheritance_level", "User"),
-					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"), // check that object_id is not an empty string
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"),       // check that object_id is not an empty string
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "entitlement_uid"), // check that entitlement_uid is not an empty string
 
 					// Retrieve the object_id before name update
 					func(s *terraform.State) error {
@@ -54,7 +56,7 @@ func TestCreateNewEntraGroup(t *testing.T) {
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group.test",
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"description", "inheritance_level"},
+				ImportStateVerifyIgnore: []string{"description", "inheritance_level", "entitlement_uid"},
 			},
 			// test update name
 			{
@@ -69,8 +71,8 @@ func TestCreateNewEntraGroup(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "name", newName),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "description", description),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "inheritance_level", "User"),
-					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"), // check that object_id is not an empty string
-
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"),       // check that object_id is not an empty string
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "entitlement_uid"), // check that entitlement_uid is not an empty string
 					// Verify that the group_id has NOT changed after name update
 					func(s *terraform.State) error {
 						rs, ok := s.RootModule().Resources["tilgangsportalen_entra_group.test"]
@@ -130,7 +132,7 @@ func TestCreateNewEntraGroupWithSpecialCharacters(t *testing.T) {
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group.test",
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"description", "inheritance_level"},
+				ImportStateVerifyIgnore: []string{"description", "inheritance_level", "entitlement_uid"},
 			},
 			// test update name
 			{
@@ -208,6 +210,7 @@ func TestCreateNewEntraGroupWithMaxNameLength(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "description", description),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "inheritance_level", "User"),
 					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "entitlement_uid"),
 				),
 			},
 			// test import state
@@ -215,7 +218,7 @@ func TestCreateNewEntraGroupWithMaxNameLength(t *testing.T) {
 				ImportState:             true,
 				ResourceName:            "tilgangsportalen_entra_group.test",
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"description", "inheritance_level"},
+				ImportStateVerifyIgnore: []string{"description", "inheritance_level", "entitlement_uid"},
 			},
 			// test update name
 			{
@@ -231,7 +234,35 @@ func TestCreateNewEntraGroupWithMaxNameLength(t *testing.T) {
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "description", description),
 					resource.TestCheckResourceAttr("tilgangsportalen_entra_group.test", "inheritance_level", "User"),
 					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "object_id"),
+					resource.TestCheckResourceAttrSet("tilgangsportalen_entra_group.test", "entitlement_uid"),
 				),
+			},
+		},
+	})
+}
+
+func TestCreateNewEntraGroupThatIsNotCreatedInEntra(t *testing.T) {
+	t.Parallel()
+
+	// A timestamp is added to the name to avoid failure due to previous
+	// test failures
+	time := time.Now().Unix()
+	name := fmt.Sprintf("[TESTNOENTRA] Test-Create_New_Entra_Group_Not_In_Entra %d", time)
+	description := "Group not created in Entra"
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfig + fmt.Sprintf(`
+				resource "tilgangsportalen_entra_group" "test" {
+					name = "%s"
+					description = "%s"
+					inheritance_level = "User"
+				}
+				`, name, description),
+				ExpectError: regexp.MustCompile("Unable to import entra group .*"),
 			},
 		},
 	})

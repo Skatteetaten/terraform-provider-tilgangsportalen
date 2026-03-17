@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -35,6 +36,7 @@ type NewEntraGroupResource struct {
 // EntraGroupModel is a mapping of the resource schema
 type EntraGroupModel struct {
 	Id               types.String `tfsdk:"id"`
+	EntitlementUID   types.String `tfsdk:"entitlement_uid"`
 	EntraIDOID       types.String `tfsdk:"object_id"`
 	DisplayName      types.String `tfsdk:"name"`
 	Alias            types.String `tfsdk:"alias"`
@@ -56,7 +58,7 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName",
+				MarkdownDescription: "Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to `name`.",
 				// Plan modifier to import id from previous state to avoid "know after apply" message
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
@@ -65,6 +67,13 @@ func (r *NewEntraGroupResource) Schema(ctx context.Context, req resource.SchemaR
 			"object_id": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "Object identifier for the Entra Group.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"entitlement_uid": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The unique ID of the Entra group (entitlement) in Tilgangsportalen. Will be empty for resources created using provider version `0.12.x` or earlier and imported resources.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -134,7 +143,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 		InheritanceLevel: data.InheritanceLevel.ValueString(),
 	}
 
-	_, err := r.client.CreateEntraGroup(entraGroup)
+	response, err := r.client.CreateEntraGroup(entraGroup)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Entra Group %s, got error: %s", data.DisplayName, err))
 		return
@@ -143,11 +152,22 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 	// Setting role ID to be equal the new role name
 	data.Id = data.DisplayName
 
+	// Setting EntitlementUID to the RequestID from the API response
+	data.EntitlementUID = types.StringValue(response.RequestID)
+
 	// Check if we need to wait for the object_id to be set for this group
 	waitForObjectId := checkIfGroupWillBeCreatedInEntra(r.client, entraGroup.DisplayName, entraGroup.Description)
 
+	// Sleep before polling to reduce API traffic to Tilgangsportalen
+	// This is located inside the resource creation function, so it will only run when a resource is created, thus avoiding adding a sleep for data sources
+	sleepTime := 77 * time.Second
+	if waitForObjectId {
+		tflog.Debug(ctx, fmt.Sprintf("Sleeping %v before polling for Entra Group object_id", sleepTime))
+		time.Sleep(sleepTime)
+	}
+
 	// Get EntraIDOID from the GetAzureADGroup API
-	entraGroupRead, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), waitForObjectId)
+	entraGroupRead, err := r.client.GetEntraGroupByID(data.EntitlementUID.ValueString(), waitForObjectId)
 	if err != nil {
 		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
 		return
@@ -171,7 +191,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// list entra groups belonging to API user and check if the group exists
+	// Check if the group exists
 	groupExists, _, err := r.client.CheckIfGroupExists(data.DisplayName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to check if Entra Group %s exists, got error: %s", data.DisplayName, err))
@@ -184,15 +204,25 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	// If group exists, we get the group and update state
-	entraGroup, err := r.client.GetEntraGroup(data.DisplayName.ValueString(), false)
-	if err != nil {
-		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
-		return
+	// Prefer EntitlementUID lookup when available, otherwise fall back to display name.
+	var entraGroup *tilgangsportalapi.EntraGroup
+	if !data.EntitlementUID.IsNull() && data.EntitlementUID.ValueString() != "" {
+		entraGroup, err = r.client.GetEntraGroupByID(data.EntitlementUID.ValueString(), false)
+		if err != nil {
+			resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to get Entra Group with EntitlementUID %s, got error: %s", data.EntitlementUID.ValueString(), err))
+			return
+		}
+	} else {
+		entraGroup, err = r.client.GetEntraGroup(data.DisplayName.ValueString(), false)
+		if err != nil {
+			resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to get Entra Group with display name %s, got error: %s", data.DisplayName.ValueString(), err))
+			return
+		}
 	}
 
 	// Map to EntraGroupModel and save updated data into Terraform state
 	data.DisplayName = types.StringValue(entraGroup.DisplayName)
+	data.EntitlementUID = types.StringValue(entraGroup.EntitlementUID)
 	data.InheritanceLevel = types.StringValue(entraGroup.InheritanceLevel)
 	data.EntraIDOID = types.StringValue(entraGroup.EntraIDOID)
 
@@ -304,9 +334,13 @@ func checkIfGroupWillBeCreatedInEntra(client *tilgangsportalapi.Client, name str
 	}
 
 	// Name must start with "[APPTEST]" and description must be equal to "APPTEST" for entra group to be created in Entra via tilgangsportalen test
+	// If name starts with "[TESTNOENTRA]", group will not be created in Entra, but the provider will still try to fetch the object_id.
+	// This is a workaround for the test TestCreateNewEntraGroupThatIsNotCreatedInEntra
 	if strings.HasPrefix(name, "[APPTEST]") && description == "APPTEST" {
 		return true
+	} else if strings.HasPrefix(name, "[TESTNOENTRA]") {
+		return true
 	}
-
+	
 	return false
 }

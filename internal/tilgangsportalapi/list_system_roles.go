@@ -11,7 +11,7 @@ func (client *Client) ListSystemRoles() (*Roles, error) {
 	var data Roles
 	log.Println("Listing roles...")
 	// Construct the URL
-	listRolesURL := "/SKAT_RoleGovernance/ListRoles"
+	listRolesURL := "/SKAT_RoleGovernance/ListRolesV1"
 
 	// Perform the POST request
 	response, err := client.GetRequest(listRolesURL)

@@ -28,6 +28,7 @@ type Client struct {
 // NewClient creates a new Client
 func NewClient(baseURL, apiUsername, apiPassword string) (*Client, error) {
 	log.Printf("Creating new client for url %s and with user %s", baseURL, apiUsername)
+
 	c := &Client{
 		HTTPClient:  &http.Client{Timeout: 10 * time.Second},
 		baseURL:     baseURL,
@@ -84,7 +85,6 @@ func (c *Client) PutRequest(urlStr string, requestBody io.Reader) (*http.Respons
 
 	return response, err
 }
-
 
 // BuildRequest builds and performs a new HTTP request to urlRequestStr of type
 // requestType with requestBody (use nil for GET). Returns the received
@@ -174,5 +174,5 @@ func CreateRequestBody(bodyObject interface{}) (io.Reader, error) {
 
 // GetBaseURL returns the base URL of the client.
 func (c *Client) GetBaseURL() string {
-    return c.baseURL
+	return c.baseURL
 }

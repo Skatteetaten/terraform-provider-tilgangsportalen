@@ -35,7 +35,8 @@ resource "tilgangsportalen_entra_group" "example" {
 
 ### Read-Only
 
-- `id` (String) Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to DisplayName
+- `entitlement_uid` (String) The unique ID of the Entra group (entitlement) in Tilgangsportalen. Will be empty for resources created using provider version `0.12.x` or earlier and imported resources.
+- `id` (String) Identifier for the Entra Group. Currently, as we do not get a unique ID we can use from the API, ID is set equal to `name`.
 - `object_id` (String) Object identifier for the Entra Group.
 
 ## Entra ID integration module
