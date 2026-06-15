@@ -3,6 +3,7 @@ package tilgangsportalapi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/url"
 	"strings"
@@ -49,9 +50,15 @@ func (client *Client) getEntraGroup(endpointName string, queryKey string, queryV
 			// as it may take some time for the group to be created and available in the API.
 			// If waitForObjectId is false, we will not retry and return the error immediately.
 			if waitForObjectId {
-				log.Printf("An error was thrown when fetching Entra group with %s \"%s\". Error: %v. Retrying in 10 seconds...", queryKey, queryValue, err)
-				time.Sleep(10 * time.Second)
-				continue
+				log.Printf("An error was thrown when fetching Entra group with %s \"%s\". Error: %v. Retrying in %v...", queryKey, queryValue, err, 10*time.Second)
+				select {
+				case <-time.After(10 * time.Second): // Retry after 10 seconds
+					continue
+				case <-ctx.Done(): // Return error if timeout is reached
+					// Wrap ctx.Err() so callers can detect timeout/cancel, while still getting a readable message with lookup context.
+					timeoutErr := fmt.Errorf("timeout while retrying failed Entra group lookup for %s %q; object_id was not observed before deadline: %w", queryKey, queryValue, ctx.Err())
+					return nil, timeoutErr
+				}
 			} else {
 				log.Printf("Entra ID group with %s \"%s\" was not found.", queryKey, queryValue)
 				return nil, err
@@ -72,9 +79,10 @@ func (client *Client) getEntraGroup(endpointName string, queryKey string, queryV
 
 		select {
 		case <-time.After(10 * time.Second): // Retry after 10 seconds
-		case <-ctx.Done():
-			log.Printf("Timeout reached while waiting for object_id to be created for group with %s %s", queryKey, queryValue)
-			return nil, ctx.Err() // Return error if timeout is reached
+		case <-ctx.Done(): // Return error if timeout is reached
+			// Wrap ctx.Err() so callers can detect timeout/cancel, while still getting a readable message with lookup context.
+			timeoutErr := fmt.Errorf("timeout reached while waiting for object_id to be created for group with %s %q: %w", queryKey, queryValue, ctx.Err())
+			return nil, timeoutErr
 		}
 	}
 

@@ -2,6 +2,7 @@ package tilgangsportalapi
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 )
@@ -61,9 +62,10 @@ func (client *Client) WaitForGroupRoleAssignmentStatus(groupName string, roleNam
 
 		select {
 		case <-time.After(5 * time.Second): // Retry after 5 seconds
-		case <-ctx.Done():
-			log.Printf("Timeout reached while waiting for group %s to be %s to role %s", groupName, action, roleName)
-			return ctx.Err() // Return error if timeout is reached
+		case <-ctx.Done(): // Return error if timeout is reached
+			// Wrap ctx.Err() so callers can detect timeout/cancel, while still getting a readable message with lookup context.
+			timeoutErr := fmt.Errorf("timeout reached while waiting for group %s to be %s to role %s: %w", groupName, action, roleName, ctx.Err())
+			return timeoutErr
 		}
 	}
 

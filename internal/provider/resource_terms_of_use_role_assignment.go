@@ -200,7 +200,7 @@ func (r *NewTermsOfUseRoleAssignmentResource) Read(ctx context.Context, req reso
 	termsOfUse, err := r.client.GetTermsOfUseForRole(data.RoleName.ValueString())
 	if err != nil {
 		// Check if error is because no terms of use is assigned (error code 606)
-		if strings.Contains(err.Error(), "no terms of use is assigned to role") {
+		if strings.Contains(strings.ToLower(err.Error()), "no terms of use is assigned to") {
 			// No terms of use assigned, remove from state
 			tflog.Info(ctx, fmt.Sprintf("Terms of Use assignment for role %s not found. Removing from state.", data.RoleName.ValueString()))
 			resp.State.RemoveResource(ctx)
