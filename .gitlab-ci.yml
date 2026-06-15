@@ -1,7 +1,7 @@
 ---
 include:
   - project: "azure-tools/ci-templates/tools"
-    ref: "3.15.0"
+    ref: "3.17.5"
     file:
       - "Linter.gitlab-ci.yml"
 
@@ -54,12 +54,30 @@ go security scanning:
     - intern
 
 # Run integration tests for Terraform provider on merge requests (into main and into release)
-integration tests:
+.integration tests base:
   image: ${IMAGE_GO}
   stage: test
   script:
     - echo "Prepare Go integration tests for provider"
-    - TF_ACC=1 go test -cover -timeout=30m -v ./...
+    - |
+      # Get all test functions from the specified test files and run them
+      TEST_FUNCTIONS=$(printf "%s\n" $TEST_FILES \
+        | sed 's|^|internal/provider/|' \
+        | xargs grep -h "^func Test" 2>/dev/null \
+        | sed 's/func \(Test[^(]*\).*/\1/' \
+        | paste -sd '|' - || true)
+
+      if [ -n "$TEST_FUNCTIONS" ]; then
+        echo "Running integration tests for files: $TEST_FILES"
+        echo "Tests:"
+        echo "$TEST_FUNCTIONS" | tr '|' '\n'
+
+        TF_ACC=1 go test -cover -timeout=30m -v -run "^((${TEST_FUNCTIONS}))$" ./...
+      else
+        echo "ERROR: No tests found"
+        exit 1
+      fi
+
   environment:
     name: dev
     action: verify
@@ -70,6 +88,38 @@ integration tests:
     - when: manual
   tags:
     - intern
+
+integration tests entra group:
+  extends: .integration tests base
+  variables:
+    TEST_FILES: >
+      data_source_entra_group_test.go
+      resource_entra_group_test.go
+      data_source_list_entra_groups_test.go
+
+integration tests system role:
+  extends: .integration tests base
+  variables:
+    TEST_FILES: >
+      data_source_system_role_test.go
+      resource_system_role_test.go
+      data_source_list_system_roles_test.go
+
+integration tests role assignment:
+  extends: .integration tests base
+  variables:
+    TEST_FILES: >
+      data_source_entra_group_role_assignment_test.go
+      resource_entra_group_role_assignment_test.go
+      data_source_list_all_system_roles_for_entra_group_test.go
+      data_source_list_entra_groups_assigned_to_role_test.go
+
+integration tests terms of use role assignment:
+  extends: .integration tests base
+  variables:
+    TEST_FILES: >
+      data_source_terms_of_use_role_assignment_test.go
+      resource_terms_of_use_role_assignment_test.go
 
 # Release branch NB: This does nothing yet. Should add tag later.
 github release:

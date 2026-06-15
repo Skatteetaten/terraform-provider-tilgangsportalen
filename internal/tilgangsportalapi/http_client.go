@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -122,20 +123,30 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	// Check for HTTP error response and getting message from response body
+	// HTTP 200 is success. Any other status is treated as an API error.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		if err != nil {
 			return nil, nil, err
 		}
+
 		var responseBody []map[string]interface{}
 		err = json.Unmarshal(bodyBytes, &responseBody)
+
 		if err != nil {
 			return nil, nil, err
 		}
+
 		message, ok := responseBody[0]["Message"].(string)
+		
 		if ok {
 			return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d, message: %s", resp.Status, resp.StatusCode, message)
 		}
+
 		return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
 	}
 
@@ -148,7 +159,6 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 	}()
 
 	return resp, bodyBytes, nil
-
 }
 
 // CreateRequestBody creates a body of type io.Reader that can be used i an
@@ -175,4 +185,23 @@ func CreateRequestBody(bodyObject interface{}) (io.Reader, error) {
 // GetBaseURL returns the base URL of the client.
 func (c *Client) GetBaseURL() string {
 	return c.baseURL
+}
+
+// Helper functions to check for specific error messages in the error returned from API calls,
+// to provide more context-specific logs and errors.
+// These functions are used in multiple places in the codebase, so they are defined here in the http_client.go file.
+
+func IsErrorRoleDoesNotExistOrUnauthorized(errMsg string) bool {
+	errMsg = strings.ToLower(errMsg)
+	return strings.Contains(errMsg, "605:") || strings.Contains(errMsg, "does not exist or you don't have permissions against it")
+}
+
+func IsErrorNoTermsOfUseAssignedToRole(errMsg string) bool {
+	errMsg = strings.ToLower(errMsg)
+	return strings.Contains(errMsg, "606:") || strings.Contains(errMsg, "no terms of use is assigned to role")
+}
+
+func IsErrorTermsOfUseAlreadyAssigned(errMsg string) bool {
+	errMsg = strings.ToLower(errMsg)
+	return strings.Contains(errMsg, "609:") || strings.Contains(errMsg, "is already assigned")
 }
