@@ -3,7 +3,6 @@ package tilgangsportalapi
 import (
 	"log"
 	"net/http"
-	"strings"
 )
 
 // AssignTermsOfUseToRole assigns a terms of use object to a role
@@ -24,9 +23,10 @@ func (client *Client) AssignTermsOfUseToRole(assignment TermsOfUseAssignment) (*
 	log.Printf("Performing POST request to url %s, with body %s", assignTermsOfUseURL, termsOfUseAssignmentBody)
 	response, err := client.PostRequest(assignTermsOfUseURL, termsOfUseAssignmentBody)
 	if err != nil {
-		// Check for specific error code 609 (terms of use already assigned to role)
+		// Check for specific error 609 (terms of use already assigned to role)
 		errMsg := err.Error()
-		if strings.Contains(errMsg, "status code: 609") {
+
+		if IsErrorTermsOfUseAlreadyAssigned(errMsg) {
 			log.Printf("Terms of Use %s is already assigned to Role %s", assignment.TermsOfUse, assignment.RoleName)
 			// Return a successful response since the desired state is already achieved
 			return &http.Response{StatusCode: 200}, nil

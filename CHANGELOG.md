@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.0
+
+ENHANCEMENTS:
+
+- Improved error messages when Entra groups are not ready after creation, making failures easier to understand and troubleshoot.
+
+FIXES:
+
+- Updated provider error handling for new API status code behavior (200 success, 500 failure with custom code in Message).
+
 ## 0.13.0
 
 ENHANCEMENTS:

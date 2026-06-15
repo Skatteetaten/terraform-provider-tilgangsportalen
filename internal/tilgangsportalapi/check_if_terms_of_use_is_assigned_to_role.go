@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -22,13 +21,14 @@ func (client *Client) GetTermsOfUseForRole(roleName string) (*TermsOfUse, error)
 	response, err := client.GetRequest(getTermsOfUseURL)
 	// Error handling
 	if err != nil {
-		// Check for specific error codes in the error message
+		// Check for specific error codes in the error message to provide more context-specific logs and errors
 		errMsg := err.Error()
-		if strings.Contains(errMsg, "status code: 605") {
+
+		if IsErrorRoleDoesNotExistOrUnauthorized(errMsg) {
 			log.Printf("Role with name \"%s\" doesn't exist or you don't have permissions against it.", roleName)
 			return nil, fmt.Errorf("role '%s' doesn't exist or you don't have permissions against it", roleName)
 		}
-		if strings.Contains(errMsg, "status code: 606") {
+		if IsErrorNoTermsOfUseAssignedToRole(errMsg) {
 			log.Printf("No terms of use is assigned to role \"%s\".", roleName)
 			return nil, fmt.Errorf("no terms of use is assigned to role '%s'", roleName)
 		}
@@ -60,7 +60,7 @@ func (client *Client) WaitForTermsOfUseAssignment(termsOfUse string, roleName st
 
 		if err != nil {
 			// Check for specific error code 606 (no terms of use assigned)
-			if strings.Contains(err.Error(), "no terms of use is assigned to role") {
+			if IsErrorNoTermsOfUseAssignedToRole(err.Error()) {
 				// Continue waiting - no terms of use assigned yet
 			} else {
 				// For any other error, return it
@@ -77,9 +77,10 @@ func (client *Client) WaitForTermsOfUseAssignment(termsOfUse string, roleName st
 
 		select {
 		case <-time.After(5 * time.Second): // Retry after 5 seconds
-		case <-ctx.Done():
-			log.Printf("Timeout reached while waiting for terms of use %s to be assigned to role %s", termsOfUse, roleName)
-			return nil, ctx.Err() // Return error if timeout is reached
+		case <-ctx.Done(): // Return error if timeout is reached
+			// Wrap ctx.Err() so callers can detect timeout/cancel, while still getting a readable message with lookup context.
+			timeoutErr := fmt.Errorf("timeout reached while waiting for terms of use %s to be assigned to role %s: %w", termsOfUse, roleName, ctx.Err())
+			return nil, timeoutErr
 		}
 	}
 }
@@ -96,7 +97,7 @@ func (client *Client) WaitForTermsOfUseRemoval(roleName string) error {
 
 		if err != nil {
 			// Check for specific error code 606 (no terms of use assigned)
-			if strings.Contains(err.Error(), "no terms of use is assigned to role") {
+			if IsErrorNoTermsOfUseAssignedToRole(err.Error()) {
 				log.Printf("A terms of use object is no longer assigned to role %s", roleName)
 				return nil // Removal successful - no terms of use assigned
 			} else {
@@ -108,8 +109,9 @@ func (client *Client) WaitForTermsOfUseRemoval(roleName string) error {
 		select {
 		case <-time.After(5 * time.Second): // Retry after 5 seconds
 		case <-ctx.Done():
+			timeoutErr := fmt.Errorf("timeout reached while waiting for terms of use to be removed from role %s: %w", roleName, ctx.Err())
 			log.Printf("Timeout reached while waiting for terms of use to be removed from role %s", roleName)
-			return ctx.Err() // Return error if timeout is reached
+			return timeoutErr // Return error if timeout is reached
 		}
 	}
 }
