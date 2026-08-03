@@ -77,7 +77,6 @@ go security scanning:
         echo "ERROR: No tests found"
         exit 1
       fi
-
   environment:
     name: dev
     action: verify
@@ -85,7 +84,15 @@ go security scanning:
   rules:
     - if: $CI_COMMIT_REF_NAME == "release"
       when: never
-    - when: manual
+    - changes:
+      - internal/**/*.go
+      - '*.go'
+      - go.mod
+      - go.sum
+      - .gitlab-ci.yml
+      - GNUmakefile
+      when: manual
+    - when: never
   tags:
     - intern
 
