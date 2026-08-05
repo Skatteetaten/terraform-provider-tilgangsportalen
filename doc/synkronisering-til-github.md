@@ -14,7 +14,6 @@ GitHub sitt API. Dette gjøres i Settings->Repository->Mirroring.
 Push mirroring er satt opp til kun å pushe én branch, nemlig “release”. Dette er
 konfigurert med regex. For å identifisere seg mot GitHub brukes et PAT-token
 laget for vår systembruker i GitHub, `skatteetaten-dataplattform-bot`
-Dersom man vil release en ny versjon etter dette, må PAT-tokenet rulleres.
 
 På GitLab- siden er det konfigurert med autentisering i form av brukernavn og
 passord. Brukernavnet er `skatteetaten-dataplattform-bot` og et PAT som
@@ -22,7 +21,7 @@ beskrevet over er brukt som passord.
 
 ## Rullering av Token
 
-Token skal rulleres hver 60 dager.
+Token skal rulleres hver 90 dager.
 Vi får en epost til felles postkasse (dataplattform(at)skatteetaten.no)
 med en link for å regenerere tokenet ca en uke før utløp.
 Nåværende token løper ut **29. oktober 2026**.

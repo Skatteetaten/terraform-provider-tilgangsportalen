@@ -84,15 +84,7 @@ go security scanning:
   rules:
     - if: $CI_COMMIT_REF_NAME == "release"
       when: never
-    - changes:
-      - internal/**/*.go
-      - '*.go'
-      - go.mod
-      - go.sum
-      - .gitlab-ci.yml
-      - GNUmakefile
-      when: manual
-    - when: never
+    - when: manual
   tags:
     - intern
 
