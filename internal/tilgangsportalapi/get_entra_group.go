@@ -32,7 +32,7 @@ func (client *Client) GetEntraGroupByID(entitlementUID string, waitForObjectId b
 }
 
 func (client *Client) getEntraGroup(endpointName string, queryKey string, queryValue string, waitForObjectId bool) (*EntraGroup, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
 	var data EntraGroup
