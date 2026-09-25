@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.1
+
+FIXES:
+
+- Changed timeout value for Get Entra Group call from 5 minutes to 10 minutes
+
 ## 0.14.0
 
 ENHANCEMENTS:
