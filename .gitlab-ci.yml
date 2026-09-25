@@ -77,7 +77,6 @@ go security scanning:
         echo "ERROR: No tests found"
         exit 1
       fi
-
   environment:
     name: dev
     action: verify
