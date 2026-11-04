@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -42,6 +43,7 @@ type SystemRoleModel struct {
 	Description             types.String `tfsdk:"description"`
 	ProductCategory         types.String `tfsdk:"product_category"`
 	ItShopName              types.String `tfsdk:"it_shop_name"`
+	Force                   types.Bool   `tfsdk:"force"`
 }
 
 // Metadata returns the resource type name.
@@ -126,6 +128,11 @@ func (r *NewSystemRoleResource) Schema(ctx context.Context, req resource.SchemaR
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"force": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+				MarkdownDescription: "Force deletion of system role. If true, role memberships are removed before deletion. Defaults to false."},
 		},
 	}
 }
@@ -311,10 +318,14 @@ func (r *NewSystemRoleResource) Delete(ctx context.Context, req resource.DeleteR
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	force := "0"
+	if data.Force.ValueBool() {
+		force = "1"
+	}
 
 	role := tilgangsportalapi.DeleteSystemRole{
 		Name:  data.Name.ValueString(),
-		Force: "1",
+		Force: force,
 	}
 
 	_, err := r.client.DeleteSystemRole(role)
@@ -352,6 +363,7 @@ func (r *NewSystemRoleResource) ImportState(ctx context.Context, req resource.Im
 		SystemRoleOwner:         types.StringValue(response.L2Ident),
 		SystemRoleSecurityOwner: types.StringNull(), //default null, only applicable if approval level is L3
 		ProductCategory:         types.StringValue(response.ProductCategory),
+		Force:                   types.BoolValue(false),
 	}
 
 	if response.ApprovalLevel == "L3" {
