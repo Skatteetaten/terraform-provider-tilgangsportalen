@@ -166,7 +166,7 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 		time.Sleep(sleepTime)
 	}
 
-	// Get EntraIDOID from the GetAzureADGroup API
+	// Get EntraIDOID from the GetAzureADGroupID API
 	entraGroupRead, err := r.client.GetEntraGroupByID(data.EntitlementUID.ValueString(), waitForObjectId)
 	if err != nil {
 		resp.Diagnostics.AddError("Client error", fmt.Sprintf("Unable to import entra group %s, got error: %s", data.DisplayName, err))
@@ -200,6 +200,7 @@ func (r *NewEntraGroupResource) Read(ctx context.Context, req resource.ReadReque
 
 	// Remove from state if group doesn't exists
 	if !groupExists {
+		tflog.Warn(ctx, fmt.Sprintf("Entra Group %s does not exist or you don't have permissions against it. Removing from state.", data.DisplayName.ValueString()))
 		resp.State.RemoveResource(ctx)
 		return
 	}

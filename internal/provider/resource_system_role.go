@@ -209,7 +209,7 @@ func (r *NewSystemRoleResource) Read(ctx context.Context, req resource.ReadReque
 	}
 	// remove from state if not exists
 	if !exists {
-		tflog.Info(ctx, fmt.Sprintf("System Role %s not found. Removing from state.", data.Name))
+		tflog.Warn(ctx, fmt.Sprintf("System Role %s does not exist or you don't have permissions against it. Removing from state.", data.Name.ValueString()))
 		resp.State.RemoveResource(ctx)
 		return
 	}
