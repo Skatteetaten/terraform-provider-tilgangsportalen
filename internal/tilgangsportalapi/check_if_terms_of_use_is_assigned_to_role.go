@@ -24,7 +24,7 @@ func (client *Client) GetTermsOfUseForRole(roleName string) (*TermsOfUse, error)
 		// Check for specific error codes in the error message to provide more context-specific logs and errors
 		errMsg := err.Error()
 
-		if IsErrorRoleDoesNotExistOrUnauthorized(errMsg) {
+		if IsErrorDoesNotExistOrUnauthorized(errMsg) {
 			log.Printf("Role with name \"%s\" doesn't exist or you don't have permissions against it.", roleName)
 			return nil, fmt.Errorf("role '%s' doesn't exist or you don't have permissions against it", roleName)
 		}

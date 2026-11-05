@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.1
+
+FIXES:
+
+- Resources are removed from state instead of failing when the API returns error code `605` or `606`
+
+ENHANCEMENTS:
+
+- Clearer error messages in `tilgangsportalen_entra_group_role_assignment` when role or group does not exist
+
 ## 0.15.0
 
 ENHANCEMENTS:

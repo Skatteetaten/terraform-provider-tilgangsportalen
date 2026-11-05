@@ -7,7 +7,10 @@ func (client *Client) CheckIfRoleExists(roleName string) (bool, string, error) {
 	role, err := client.GetSystemRole(roleName)
 
 	if err != nil {
-		// Role does not exist
+		// 605 (not found or no permissions) is an answer, not a failure: the role is not visible to us.
+		if IsErrorDoesNotExistOrUnauthorized(err.Error()) {
+			return false, "", nil
+		}
 		return false, "", err
 	}
 

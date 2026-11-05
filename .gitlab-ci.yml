@@ -53,6 +53,17 @@ go security scanning:
   tags:
     - intern
 
+# Run the unit tests inside internal/tilgangsportalapi on merge requests (into main and into release)
+unit tests:
+  image: ${IMAGE_GO}
+  stage: test
+  script:
+    - go test -cover -v ./internal/tilgangsportalapi/...
+  rules:
+    - !reference [.feature-branch, rules]
+  tags:
+    - intern
+
 # Run integration tests for Terraform provider on merge requests (into main and into release)
 .integration tests base:
   image: ${IMAGE_GO}
