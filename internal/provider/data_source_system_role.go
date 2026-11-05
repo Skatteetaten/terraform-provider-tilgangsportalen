@@ -98,7 +98,7 @@ func (d *SystemRoleDataSource) Configure(ctx context.Context, req datasource.Con
 
 // Read the resource data.
 func (d *SystemRoleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data SystemRoleModel
+	var data SystemRoleDataSourceModel
 
 	// Read Terraform configuration data into the model
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
@@ -134,7 +134,7 @@ func (d *SystemRoleDataSource) Read(ctx context.Context, req datasource.ReadRequ
 }
 
 // findSystemRole finds a system role by name or object_id
-func (d *SystemRoleDataSource) findSystemRole(data *SystemRoleModel) (*tilgangsportalapi.SystemRole, error) {
+func (d *SystemRoleDataSource) findSystemRole(data *SystemRoleDataSourceModel) (*tilgangsportalapi.SystemRole, error) {
 	// Lookup by name
 	if !data.Name.IsNull() && !data.Name.IsUnknown() {
 		return d.client.GetSystemRole(data.Name.ValueString())
@@ -146,4 +146,17 @@ func (d *SystemRoleDataSource) findSystemRole(data *SystemRoleModel) (*tilgangsp
 	}
 
 	return nil, nil
+}
+
+// SystemRoleDataSourceModel describes the data source data model.
+type SystemRoleDataSourceModel struct {
+	ID                      types.String `tfsdk:"id"`
+	Name                    types.String `tfsdk:"name"`
+	ObjectID                types.String `tfsdk:"object_id"`
+	SystemRoleOwner         types.String `tfsdk:"system_role_owner"`
+	SystemRoleSecurityOwner types.String `tfsdk:"system_role_security_owner"`
+	ApprovalLevel           types.String `tfsdk:"approval_level"`
+	Description             types.String `tfsdk:"description"`
+	ProductCategory         types.String `tfsdk:"product_category"`
+	ItShopName              types.String `tfsdk:"it_shop_name"`
 }

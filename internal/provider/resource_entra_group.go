@@ -341,6 +341,6 @@ func checkIfGroupWillBeCreatedInEntra(client *tilgangsportalapi.Client, name str
 	} else if strings.HasPrefix(name, "[TESTNOENTRA]") {
 		return true
 	}
-	
+
 	return false
 }

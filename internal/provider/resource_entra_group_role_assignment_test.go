@@ -37,6 +37,7 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
+					force = true
 				}
 
 				resource "tilgangsportalen_entra_group" "test" {
@@ -72,6 +73,7 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
+					force = true
 				}
 				resource "tilgangsportalen_entra_group" "test" {
 					name = "%s"
@@ -100,6 +102,7 @@ func TestEntraGroupRoleAssignment(t *testing.T) {
 					approval_level    = "L2"
 					description       = "Terraform acceptance test role for assignment."
 					it_shop_name      = "%s"
+					force = true
 				}
 				resource "tilgangsportalen_entra_group" "test" {
 					name = "%s"

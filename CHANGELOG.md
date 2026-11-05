@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.0
+
+ENHANCEMENTS:
+
+- Added optional `force` attribute to `tilgangsportalen_system_role. When `true`, memberships are removed before deletion. When `false` deletion fails if there are active role memberships. Defaults to `false`. 
+
 ## 0.14.1
 
 FIXES:
