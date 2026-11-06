@@ -191,9 +191,13 @@ func (c *Client) GetBaseURL() string {
 // to provide more context-specific logs and errors.
 // These functions are used in multiple places in the codebase, so they are defined here in the http_client.go file.
 
-func IsErrorRoleDoesNotExistOrUnauthorized(errMsg string) bool {
+func IsErrorDoesNotExistOrUnauthorized(errMsg string) bool {
 	errMsg = strings.ToLower(errMsg)
 	return strings.Contains(errMsg, "605:") || strings.Contains(errMsg, "does not exist or you don't have permissions against it")
+}
+
+func IsErrorDoesNotExist(errMsg string) bool {
+	return strings.Contains(errMsg, "606:")
 }
 
 func IsErrorNoTermsOfUseAssignedToRole(errMsg string) bool {

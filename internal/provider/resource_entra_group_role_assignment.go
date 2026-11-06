@@ -104,7 +104,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		return
 	}
 	if !roleExists {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Role %s does not exist", data.RoleName.ValueString()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Role %s does not exist or you don't have permissions against it", data.RoleName.ValueString()))
 		return
 	}
 	if actualRoleName != data.RoleName.ValueString() {
@@ -122,7 +122,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Create(ctx context.Context, req re
 		return
 	}
 	if !groupExists {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Entra Group %s does not exist", data.EntraGroup.ValueString()))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Entra Group %s does not exist or you don't have permissions against it", data.EntraGroup.ValueString()))
 		return
 	}
 	if actualGroupName != data.EntraGroup.ValueString() {
@@ -192,7 +192,7 @@ func (r *NewEntraGroupRoleAssignmentResource) Read(ctx context.Context, req reso
 	}
 
 	if !roleExists {
-		tflog.Debug(ctx, fmt.Sprintf("Role %s does not exist, removing assignment from state", data.RoleName.ValueString()))
+		tflog.Warn(ctx, fmt.Sprintf("Role %s does not exist or you don't have permissions against it. Removing assignment from state.", data.RoleName.ValueString()))
 		resp.State.RemoveResource(ctx)
 		return
 	}
