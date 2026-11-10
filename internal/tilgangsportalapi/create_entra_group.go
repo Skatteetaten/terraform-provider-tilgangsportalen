@@ -26,7 +26,8 @@ func (client *Client) CreateEntraGroup(group EntraGroup) (*SuccessfulResponse, e
 
 	// Perform the POST request
 	urlRequestStr := client.baseURL + createGroupURL
-	_, responseBody, err := BuildRequest("POST", urlRequestStr, groupBody, client.headers, client.cookies, defaultTimeout)
+	timeout := 600 // 10 minute timeout
+	_, responseBody, err := BuildRequest("POST", urlRequestStr, groupBody, client.headers, client.cookies, timeout)
 	if err != nil {
 		return nil, err
 	}
