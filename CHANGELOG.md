@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.2
+
+FIXES:
+
+- Changed timeout value for Create Entra Group call from 5 minutes to 10 minutes
+
 ## 0.15.1
 
 FIXES:
