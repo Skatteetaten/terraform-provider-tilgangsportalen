@@ -53,7 +53,7 @@ provider "tilgangsportalen" {
 Følgende konfigurasjonsattributter kan settes via miljøvariabler:
 
 | Argument   | Miljøvariabel               |
-| ---------- | --------------------------- |
+|------------|-----------------------------|
 | `hosturl`  | `TILGANGSPORTALEN_URL`      |
 | `username` | `TILGANGSPORTALEN_USERNAME` |
 | `password` | `TILGANGSPORTALEN_PASSWORD` |
@@ -72,7 +72,7 @@ du identifiserer deg med mot Tilgangsportalen.
 
 ### Installer avhengigheter
 
-[Go >=1.21](https://go.dev/doc/install)
+[Go >=1.26.3](https://go.dev/doc/install)
 
 ```shell
 brew install go

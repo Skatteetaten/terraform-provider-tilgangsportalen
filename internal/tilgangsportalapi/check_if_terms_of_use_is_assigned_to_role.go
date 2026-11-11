@@ -21,16 +21,13 @@ func (client *Client) GetTermsOfUseForRole(roleName string) (*TermsOfUse, error)
 	response, err := client.GetRequest(getTermsOfUseURL)
 	// Error handling
 	if err != nil {
-		// Check for specific error codes in the error message to provide more context-specific logs and errors
-		errMsg := err.Error()
-
-		if IsErrorDoesNotExistOrUnauthorized(errMsg) {
+		if IsErrorDoesNotExistOrUnauthorized(err) {
 			log.Printf("Role with name \"%s\" doesn't exist or you don't have permissions against it.", roleName)
-			return nil, fmt.Errorf("role '%s' doesn't exist or you don't have permissions against it", roleName)
+			return nil, fmt.Errorf("role '%s' doesn't exist or you don't have permissions against it: %w", roleName, err)
 		}
-		if IsErrorNoTermsOfUseAssignedToRole(errMsg) {
+		if IsErrorDoesNotExist(err) {
 			log.Printf("No terms of use is assigned to role \"%s\".", roleName)
-			return nil, fmt.Errorf("no terms of use is assigned to role '%s'", roleName)
+			return nil, fmt.Errorf("no terms of use is assigned to role '%s': %w", roleName, err)
 		}
 		log.Printf("Error fetching terms of use for role \"%s\": %v", roleName, err)
 		return nil, err
@@ -60,7 +57,7 @@ func (client *Client) WaitForTermsOfUseAssignment(termsOfUse string, roleName st
 
 		if err != nil {
 			// Check for specific error code 606 (no terms of use assigned)
-			if IsErrorNoTermsOfUseAssignedToRole(err.Error()) {
+			if IsErrorDoesNotExist(err) {
 				// Continue waiting - no terms of use assigned yet
 			} else {
 				// For any other error, return it
@@ -97,7 +94,7 @@ func (client *Client) WaitForTermsOfUseRemoval(roleName string) error {
 
 		if err != nil {
 			// Check for specific error code 606 (no terms of use assigned)
-			if IsErrorNoTermsOfUseAssignedToRole(err.Error()) {
+			if IsErrorDoesNotExist(err) {
 				log.Printf("A terms of use object is no longer assigned to role %s", roleName)
 				return nil // Removal successful - no terms of use assigned
 			} else {

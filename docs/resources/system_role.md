@@ -53,6 +53,7 @@ resource "tilgangsportalen_system_role" "example_3" {
 ### Optional
 
 - `description` (String) A description of the role
+- `force` (Boolean) Force deletion of system role. If true, role memberships are removed before deletion. Defaults to false.
 - `it_shop_name` (String) The name of the IT shop. Defaults to 'General access shop shelf'
 - `system_role_security_owner` (String) The security owner of the role. Required if the approval level is L3
 
