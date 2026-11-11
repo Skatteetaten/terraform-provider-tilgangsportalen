@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 	"terraform-provider-tilgangsportalen/internal/tilgangsportalapi"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -104,7 +103,7 @@ func (d *TermsOfUseRoleAssignmentDataSource) Read(ctx context.Context, req datas
 	// Get the Terms of Use assignment from the API
 	termsOfUse, err := d.client.GetTermsOfUseForRole(roleName)
 	if err != nil {
-		if strings.Contains(err.Error(), "no terms of use is assigned to role") {
+		if tilgangsportalapi.IsErrorDoesNotExist(err) {
 			resp.Diagnostics.AddError(
 				"No Terms of Use Assignment Found",
 				fmt.Sprintf("No Terms of Use is currently assigned to role '%s'. Ensure the role exists and has a Terms of Use assignment before using this data source.", roleName),

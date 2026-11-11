@@ -6,7 +6,6 @@ package tilgangsportalapi
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -88,8 +87,8 @@ func (c *Client) PutRequest(urlStr string, requestBody io.Reader) (*http.Respons
 }
 
 // BuildRequest builds and performs a new HTTP request to urlRequestStr of type
-// requestType with requestBody (use nil for GET). Returns the received
-// response and the body
+// requestType with requestBody (use nil for GET). Returns the response and its
+// body on 2xx, or an *APIError on any other status.
 func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reader, headers map[string]string, cookies []*http.Cookie, timeout int) (*http.Response, []byte, error) {
 
 	log.Printf("Encoding data for %s request and creating request body", requestType)
@@ -109,19 +108,22 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 		req.AddCookie(cookie)
 	}
 
-	// Create an HTTP client and send the request with specified timeout
+	// Timeout is given in seconds and covers the whole request, including reading the body
 	client := &http.Client{
 		Timeout: time.Second * time.Duration(timeout),
 	}
 
 	log.Printf("Performing %s request to %s", requestType, urlRequestStr)
 
+	// Only fails on network/timeout errors; HTTP error statuses are handled below
 	resp, err := client.Do(req)
-
 	if err != nil {
 		return nil, nil, err
 	}
+	// Close the body on every return path, also when the API responds with an error
+	defer func() { _ = resp.Body.Close() }()
 
+	// The body is read here, so callers must use bodyBytes instead of resp.Body
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, nil, err
@@ -129,36 +131,29 @@ func BuildRequest(requestType string, urlRequestStr string, requestBody io.Reade
 
 	// Check for HTTP error response and getting message from response body
 	// HTTP 200 is success. Any other status is treated as an API error.
+	// The API responds to all errors with HTTP 500 and the real error code (6xx) at the start of Message
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		if err != nil {
-			return nil, nil, err
-		}
-
-		var responseBody []map[string]interface{}
-		err = json.Unmarshal(bodyBytes, &responseBody)
-
-		if err != nil {
-			return nil, nil, err
-		}
-
-		message, ok := responseBody[0]["Message"].(string)
-		
-		if ok {
-			return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d, message: %s", resp.Status, resp.StatusCode, message)
-		}
-
-		return nil, nil, fmt.Errorf("response: %s, HTTP request failed with status code: %d", resp.Status, resp.StatusCode)
+		return nil, nil, newAPIError(resp.Status, resp.StatusCode, parseErrorMessage(bodyBytes))
 	}
 
-	// Closing the response body
-	defer func() {
-		cerr := resp.Body.Close()
-		if cerr != nil && err == nil {
-			err = cerr
-		}
-	}()
-
 	return resp, bodyBytes, nil
+}
+
+// parseErrorMessage extracts Message from an API error body of the form
+// [{"Message": "..."}]. If the body is not in that form (e.g. an HTML page
+// from a gateway), the raw body is returned so the HTTP status is still
+// reported as an APIError.
+func parseErrorMessage(body []byte) string {
+	var responseBody []struct {
+		Message string `json:"Message"`
+	}
+	if err := json.Unmarshal(body, &responseBody); err != nil {
+		return strings.TrimSpace(string(body))
+	}
+	if len(responseBody) == 0 {
+		return ""
+	}
+	return responseBody[0].Message
 }
 
 // CreateRequestBody creates a body of type io.Reader that can be used i an
@@ -185,27 +180,4 @@ func CreateRequestBody(bodyObject interface{}) (io.Reader, error) {
 // GetBaseURL returns the base URL of the client.
 func (c *Client) GetBaseURL() string {
 	return c.baseURL
-}
-
-// Helper functions to check for specific error messages in the error returned from API calls,
-// to provide more context-specific logs and errors.
-// These functions are used in multiple places in the codebase, so they are defined here in the http_client.go file.
-
-func IsErrorDoesNotExistOrUnauthorized(errMsg string) bool {
-	errMsg = strings.ToLower(errMsg)
-	return strings.Contains(errMsg, "605:") || strings.Contains(errMsg, "does not exist or you don't have permissions against it")
-}
-
-func IsErrorDoesNotExist(errMsg string) bool {
-	return strings.Contains(errMsg, "606:")
-}
-
-func IsErrorNoTermsOfUseAssignedToRole(errMsg string) bool {
-	errMsg = strings.ToLower(errMsg)
-	return strings.Contains(errMsg, "606:") || strings.Contains(errMsg, "no terms of use is assigned to role")
-}
-
-func IsErrorTermsOfUseAlreadyAssigned(errMsg string) bool {
-	errMsg = strings.ToLower(errMsg)
-	return strings.Contains(errMsg, "609:") || strings.Contains(errMsg, "is already assigned")
 }

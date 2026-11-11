@@ -200,7 +200,7 @@ func (r *NewTermsOfUseRoleAssignmentResource) Read(ctx context.Context, req reso
 	termsOfUse, err := r.client.GetTermsOfUseForRole(data.RoleName.ValueString())
 	if err != nil {
 		// Check if error is because no terms of use is assigned (error code 606)
-		if strings.Contains(strings.ToLower(err.Error()), "no terms of use is assigned to") {
+		if tilgangsportalapi.IsErrorDoesNotExist(err) {
 			// No terms of use assigned, remove from state
 			tflog.Info(ctx, fmt.Sprintf("Terms of Use assignment for role %s not found. Removing from state.", data.RoleName.ValueString()))
 			resp.State.RemoveResource(ctx)
@@ -312,6 +312,10 @@ func (r *NewTermsOfUseRoleAssignmentResource) Delete(ctx context.Context, req re
 	// Remove the terms of use from the role
 	_, err := r.client.RemoveTermsOfUseFromRole(removal)
 	if err != nil {
+		if tilgangsportalapi.IsErrorDoesNotExist(err) {
+			tflog.Warn(ctx, fmt.Sprintf("No Terms of Use is assigned to role %s. Nothing to remove.", data.RoleName.ValueString()))
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to remove Terms of Use from Role %s, got error: %s", data.RoleName.ValueString(), err))
 		return
 	}
@@ -350,7 +354,7 @@ func (r *NewTermsOfUseRoleAssignmentResource) ImportState(ctx context.Context, r
 	// Verify the assignment exists
 	termsOfUse, err := r.client.GetTermsOfUseForRole(roleName)
 	if err != nil {
-		if strings.Contains(err.Error(), "no terms of use is assigned to role") {
+		if tilgangsportalapi.IsErrorDoesNotExist(err) {
 			resp.Diagnostics.AddError("Assignment not found", fmt.Sprintf("No Terms of Use is assigned to role %s", roleName))
 			return
 		}

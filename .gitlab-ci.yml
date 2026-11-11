@@ -1,7 +1,7 @@
 ---
 include:
   - project: "azure-tools/ci-templates/tools"
-    ref: "3.17.5"
+    ref: "4.0.0"
     file:
       - "Linter.gitlab-ci.yml"
 

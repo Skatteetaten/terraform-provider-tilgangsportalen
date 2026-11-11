@@ -23,10 +23,7 @@ func (client *Client) AssignTermsOfUseToRole(assignment TermsOfUseAssignment) (*
 	log.Printf("Performing POST request to url %s, with body %s", assignTermsOfUseURL, termsOfUseAssignmentBody)
 	response, err := client.PostRequest(assignTermsOfUseURL, termsOfUseAssignmentBody)
 	if err != nil {
-		// Check for specific error 609 (terms of use already assigned to role)
-		errMsg := err.Error()
-
-		if IsErrorTermsOfUseAlreadyAssigned(errMsg) {
+		if IsErrorAlreadyExists(err) {
 			log.Printf("Terms of Use %s is already assigned to Role %s", assignment.TermsOfUse, assignment.RoleName)
 			// Return a successful response since the desired state is already achieved
 			return &http.Response{StatusCode: 200}, nil

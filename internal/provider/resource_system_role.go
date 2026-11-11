@@ -168,6 +168,10 @@ func (r *NewSystemRoleResource) Create(ctx context.Context, req resource.CreateR
 
 	_, err := r.client.CreateAndPublishSystemRole(role)
 	if err != nil {
+		if tilgangsportalapi.IsErrorAlreadyExists(err) {
+			resp.Diagnostics.AddError("System Role Already Exists", fmt.Sprintf("System Role %s already exists in Tilgangsportalen. If it was removed from state because it could not be read, check that you have permissions against it, then import it. Got error: %s", data.Name.ValueString(), err))
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create System Role %s, got error: %s", data.Name, err))
 		return
 	}
