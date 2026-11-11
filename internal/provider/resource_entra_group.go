@@ -145,6 +145,10 @@ func (r *NewEntraGroupResource) Create(ctx context.Context, req resource.CreateR
 
 	response, err := r.client.CreateEntraGroup(entraGroup)
 	if err != nil {
+		if tilgangsportalapi.IsErrorAlreadyExists(err) {
+			resp.Diagnostics.AddError("Entra Group Already Exists", fmt.Sprintf("Entra Group %s already exists in Tilgangsportalen. If it was removed from state because it could not be read, check that you have permissions against it, then import it. Got error: %s", data.DisplayName.ValueString(), err))
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Entra Group %s, got error: %s", data.DisplayName, err))
 		return
 	}
@@ -292,6 +296,10 @@ func (r *NewEntraGroupResource) Delete(ctx context.Context, req resource.DeleteR
 
 	_, err := r.client.DeleteEntraGroup(group)
 	if err != nil {
+		if tilgangsportalapi.IsErrorDoesNotExistOrUnauthorized(err) {
+			resp.Diagnostics.AddError("Entra Group Not Found Or No Permissions", fmt.Sprintf("Unable to delete Entra Group %s: it does not exist or you don't have permissions against it. If it is already deleted, remove it from state with 'terraform state rm'. Got error: %s", data.DisplayName.ValueString(), err))
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete Entra Group %s, got error: %s", data.DisplayName, err))
 		return
 	}

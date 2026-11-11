@@ -283,6 +283,14 @@ func (r *NewEntraGroupRoleAssignmentResource) Delete(ctx context.Context, req re
 
 	_, err := r.client.RemoveEntraGroupFromRole(role)
 	if err != nil {
+		if tilgangsportalapi.IsErrorDoesNotExist(err) {
+			tflog.Warn(ctx, fmt.Sprintf("Role %s, Entra Group %s or the assignment between them does not exist. Removing from state.", data.RoleName.ValueString(), data.EntraGroup.ValueString()))
+			return
+		}
+		if tilgangsportalapi.IsErrorDoesNotExistOrUnauthorized(err) {
+			resp.Diagnostics.AddError("Not Found Or No Permissions", fmt.Sprintf("Unable to remove Entra Group %s from Role %s: the role or group does not exist or you don't have permissions against it. If the assignment is already removed, remove it from state with 'terraform state rm'. Got error: %s", data.EntraGroup.ValueString(), data.RoleName.ValueString(), err))
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to Remove Entra Group %s from Role %s, got error: %s", data.EntraGroup, data.RoleName, err))
 		return
 	}

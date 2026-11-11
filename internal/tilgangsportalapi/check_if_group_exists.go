@@ -8,7 +8,7 @@ func (client *Client) CheckIfGroupExists(groupName string) (bool, string, error)
 
 	if err != nil {
 		// 605 (not found or no permissions) and 606 (not found) are answers, not failures: the group is not visible to us.
-		if IsErrorDoesNotExistOrUnauthorized(err.Error()) || IsErrorDoesNotExist(err.Error()) {
+		if IsErrorDoesNotExistOrUnauthorized(err) || IsErrorDoesNotExist(err) {
 			return false, "", nil
 		}
 		return false, "", err

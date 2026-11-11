@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.15.3
+
+- Deleting `tilgangsportalen_entra_group_role_assignment` or `tilgangsportalen_terms_of_use_role_assignment` no longer fails when the assignment, role or group no longer exists (API error code `606`)
+- Changed timeout value for Create Entra Group call from 5 minutes to 10 minutes
+- API error responses that are not JSON (e.g. from a gateway) or are an empty list now report the HTTP status and response instead of a parse error or crash
+
+ENHANCEMENTS:
+
+- Clearer error message when creating `tilgangsportalen_entra_group` or `tilgangsportalen_system_role` that already exists (API error code `609`), with a hint to import it
+- Clearer error message when deleting `tilgangsportalen_entra_group` or `tilgangsportalen_entra_group_role_assignment` fails because the object does not exist or the user lacks permissions (API error code `605`), with a hint to use `terraform state rm`
+
+DOCUMENTATION:
+
+- Added the `force` attribute (introduced in 0.15.0) to the `tilgangsportalen_system_role` documentation
+
+INTERNAL:
+
+- API error codes are read from the start of the response message instead of matching on the full error text
+- Response body is now closed also when the API returns an error
+- Added tests for API error code handling
+- Documented the API error response format in `doc/api-feilkoder.md`
+- Minimum Go version raised to 1.26.3 and Go toolchain updated to 1.27.2; dependencies upgraded
+- `tfplugindocs` now runs via `go tool` instead of a separate install, and `make upgrade-deps` was added
+- Updated CI: GitLab linter templates to 4.0.0, and `actions/setup-go` to v7 in the GitHub release workflow
+
 ## 0.15.2
 
 FIXES:
@@ -20,7 +45,7 @@ ENHANCEMENTS:
 
 ENHANCEMENTS:
 
-- Added optional `force` attribute to `tilgangsportalen_system_role. When `true`, memberships are removed before deletion. When `false` deletion fails if there are active role memberships. Defaults to `false`. 
+- Added optional `force` attribute to `tilgangsportalen_system_role`. When `true`, memberships are removed before deletion. When `false` deletion fails if there are active role memberships. Defaults to `false`.
 
 ## 0.14.1
 

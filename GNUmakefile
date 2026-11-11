@@ -1,13 +1,17 @@
 # Makefile
 
 # Variables
-GO_BIN_DIR := $(HOME)/go/bin
 PROVIDER_DIR := $(PWD)/internal
 EXAMPLES_DIR := $(PWD)/examples/provider-install-verification
-GOBIN := $(GO_BIN_DIR)
+# GO_MIN_VERSION is the minimum Go version required by the module (the go directive in go.mod). It must not be
+# newer than the Go bundled with MegaLinter, which runs with GOTOOLCHAIN=local and lags behind the CI image.
+# GO_TOOLCHAIN_VERSION is the Go version used to build (the toolchain directive in go.mod). It should match the
+# Go version in the CI image (IMAGE_GO in .gitlab-ci.yml).
+GO_MIN_VERSION := 1.26.3
+GO_TOOLCHAIN_VERSION := 1.27.2
 
 # Phony targets
-.PHONY: all build install update-deps run-tests generate-docs tfplugindocs check-deps clean
+.PHONY: all build install update-deps upgrade-deps run-tests generate-docs check-deps clean
 
 # Default target
 all: update-deps build install generate-docs go-vet
@@ -29,13 +33,19 @@ install: check-deps
 update-deps:
 	go mod tidy
 
-# Install tfplugindocs tool
-tfplugindocs:
-	GOBIN=$(GOBIN) go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+# Upgrade all Go module dependencies (including tool dependencies in go.mod) to the latest versions
+# compatible with GO_MIN_VERSION. The toolchain directive is removed during the upgrade and set to
+# GO_TOOLCHAIN_VERSION afterwards. Check the latest Go version in the CI image (IMAGE_GO in .gitlab-ci.yml) manually in:
+# https://gitlab.skead.no/azure-tools/container-registry/go/-/blob/main/CHANGELOG.md?ref_type=heads
+upgrade-deps:
+	go get -u ./... go@$(GO_MIN_VERSION) toolchain@none
+	go get -u tool go@$(GO_MIN_VERSION) toolchain@none
+	go mod tidy
+	go mod edit -go=$(GO_MIN_VERSION) -toolchain=go$(GO_TOOLCHAIN_VERSION)
 
 # Generate documentation
-generate-docs: tfplugindocs
-	$(GOBIN)/tfplugindocs generate --rendered-provider-name Tilgangsportalen
+generate-docs:
+	go tool tfplugindocs generate --rendered-provider-name Tilgangsportalen
 
 # Vet examines Go source code and reports suspicious constructs
 go-vet:
