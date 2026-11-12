@@ -1,5 +1,6 @@
 # Documentation found at https://goreleaser.com
 ---
+version: 2
 before:
   hooks:
     - go mod tidy
@@ -11,22 +12,23 @@ builds:
       - -trimpath
     ldflags:
       - "-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}"
-    goos:
-      - freebsd
-      - windows
-      - linux
-      - darwin
-    goarch:
-      - amd64
-      - "386"
-      - arm
-      - arm64
-    ignore:
-      - goos: darwin
-        goarch: "386"
+    targets: # Explicit list so new Go releases cannot silently add or break targets (windows/arm was removed in Go 1.26).
+      - darwin_amd64
+      - darwin_arm64
+      - freebsd_386
+      - freebsd_amd64
+      - freebsd_arm
+      - freebsd_arm64
+      - linux_386
+      - linux_amd64
+      - linux_arm
+      - linux_arm64
+      - windows_386
+      - windows_amd64
+      - windows_arm64
     binary: "{{ .ProjectName }}_v{{ .Version }}"
 archives:
-  - format: zip
+  - formats: [zip]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 checksum:
   extra_files:
@@ -50,4 +52,4 @@ release:
       name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
 # draft: true  # Uncomment to view the release before it goes live
 changelog:
-  skip: true
+  disable: true
